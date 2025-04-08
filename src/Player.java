@@ -3,18 +3,21 @@ import java.util.List;
 public class Player {
     private int id;
     private List<Piece> pieces;
-    private List<Integer> yutResult;
 
-    public void throwYut(){
-
+    public Player(int id){
+        this.id = id;
     }
 
     public Piece selectPiece(){
 
     }
 
-    public Integer selectYutValue(){
+    public int getId() {
+        return id;
+    }
 
+    public List<Piece> getPieces() {
+        return pieces;
     }
 
     public boolean checkWin(){
