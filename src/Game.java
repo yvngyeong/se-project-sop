@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -16,8 +17,14 @@ public class Game {
         while (!gameOver) {
             Player currentPlayer = players.get(currentPlayerIndex);
 
-            currentPlayer.throwYut(); //player의 필드 yutResult에 저장
-            List<Integer> yutResult = currentPlayer.getYutResult();
+            List<Integer> yutResult = new ArrayList<>();
+            while(true){
+                Integer yutValue = yut.getResult();
+                yutResult.add(yutValue);
+                if (yutValue == -1 || yutValue == 1 || yutValue == 2 || yutValue == 3) {
+                    break;
+                }
+            }
 
             while (!yutResult.isEmpty()) {
                 System.out.println("남은 윷 결과: " + yutResult);
