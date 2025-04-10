@@ -1,6 +1,162 @@
-public class HexagonalBoard extends Board{
+//6각형
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class HexagonalBoard extends Board
+{
+    
+    public HexagonalBoard() {
+        nodes = new ArrayList<>();
+        edges = new HashMap<>();
+    }
+
     @Override
-    public void movePosition(Piece piece, int result) {
+    public void createNodes() {
+
+        for(int i=0;i<44;i++)
+            nodes.add(new Node(i));
+    }
+    @Override
+    public void createEdges() {
+
+        for(int i=0;i<43;i++)
+        {
+            edges.put(i, List.of(i+1));
+        }
+
+        edges.put(37, List.of(38));
+        edges.put(38,List.of(30));
+        edges.put(30, List.of(34));
+        edges.put(34,List.of(33));
+        edges.put(33, List.of(25));
+        edges.put(36, List.of(35));
+        edges.put(35,List.of(43));
+        edges.put(39, List.of(40));
+        edges.put(40,List.of(30));
+        edges.put(41,List.of(42));
+        edges.put(42,List.of(30));
+        edges.put(43, List.of(35));
 
     }
+    @Override
+    public void createBoard()
+    {
+
+
+    }
+    @Override
+    public void movePosition(Piece myPiece, Integer yutValue) {
+
+
+        if(myPiece.isFinished())
+            return;
+
+        int position=myPiece.getPosition();
+        Node currentNode=nodes.get(position);
+        currentNode.remove(myPiece);
+
+
+        if (yutValue == -1)
+        {
+            int prev = myPiece.popPreviousPosition();
+            if (prev != -1)
+            {
+                position = prev;
+                System.out.println("빽도");
+            }
+            else
+            {
+                System.out.println("뒤로 갈 수 없음");
+            }
+            myPiece.setPosition(position);
+            nodes.get(position).add(myPiece);
+            return;
+        }
+
+        if(position==5)
+        {
+            myPiece.pushPreviousPosition(position);
+            position=37;
+            yutValue--;
+        }
+        else if(position==10)
+        {
+            myPiece.pushPreviousPosition(position);
+            position=39;
+            yutValue--;
+        }
+        else if(position==15)
+        {
+            myPiece.pushPreviousPosition(position);
+            position=41;
+            yutValue--;
+        }
+        else if(position==30)
+        {
+            myPiece.pushPreviousPosition(position);
+            position=36;
+            yutValue--;
+        }
+
+        for(int i=0;i<yutValue;i++)
+        {
+
+            List<Integer> nextPosition = edges.get(position);
+            myPiece.pushPreviousPosition(position);
+
+            position=nextPosition.get(0);
+            if (nextPosition.get(0) == 43)
+            {
+                System.out.println("승리");
+                myPiece.finish();
+                break;
+            }
+
+        }
+
+        // 잡기
+        Node nextNode=nodes.get(position);
+        List<Piece> pieces= new ArrayList<>(nextNode.getOwnedPieces());
+
+        for(int i=0;i<pieces.size();i++)
+        {
+            Piece opponentPiece=pieces.get(i);
+            if(opponentPiece.getOwnerId() != myPiece.getOwnerId())
+            {
+                nextNode.remove(pieces.get(i));
+                opponentPiece.setPosition(0);
+                nodes.get(0).add(opponentPiece);
+
+            }
+            else if (opponentPiece.getOwnerId() == myPiece.getOwnerId())  //같은 플레이어 말일때 -> 그룹핑
+            {
+                myPiece.grouping(opponentPiece);
+
+            }
+        }
+
+        myPiece.setPosition(position);
+        nodes.get(position).add(myPiece);
+
+        if (myPiece.getGroupId() == 1)
+        {
+            for (Piece grouped : myPiece.getGroupedPieces())
+            {
+                if (grouped != myPiece)
+                {
+                    grouped.setPosition(position);
+                    nodes.get(position).add(grouped);
+                }
+            }
+        }
+
+
+
+
+
+    }
+
+
 }
