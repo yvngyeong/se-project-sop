@@ -95,19 +95,27 @@ public class TetragonalBoard extends Board{
             yutValue--;
         }
 
-        for(int i=0;i<yutValue;i++)
+        for (int i = 0; i < yutValue; i++)
         {
-            List<Integer> nextPosition = edges.get(position); // 현재 position에서 갈 수 있는 nextposition 리스트
-            myPiece.pushPreviousPosition(position);
+            List<Integer> nextPosition = edges.get(position);
 
-            position=nextPosition.get(0); // position 갱신 (이때 리스트에서 0번째 순서의 포지션으로 갱신하는거니까 지름길도 고려한거임)
-            if (nextPosition.get(0)==29) // 말이 다시 시작 지점 통과할때
+            if (nextPosition == null || nextPosition.isEmpty())
             {
-                System.out.println("승리"); //테스트용으로 써본겁니다
+                // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
+                System.out.println("승리");
                 myPiece.finish();
+                position = 29; // 명시적으로 승리 위치 지정
                 break;
             }
 
+            myPiece.pushPreviousPosition(position);
+            position = nextPosition.get(0);
+
+            if (position == 29) {
+                System.out.println("승리");
+                myPiece.finish();
+                break;
+            }
         }
 
         // 잡기 & 그룹핑
