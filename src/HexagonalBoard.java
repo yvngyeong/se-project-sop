@@ -6,7 +6,7 @@ import java.util.List;
 
 public class HexagonalBoard extends Board
 {
-    
+
     public HexagonalBoard() {
         nodes = new ArrayList<>();
         edges = new HashMap<>();
