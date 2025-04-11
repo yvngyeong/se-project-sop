@@ -1,6 +1,8 @@
+package main;
+
 import java.util.Random;
 
-public class RandomYut extends Yut{
+public class RandomYut extends Yut {
     private Random random = new Random();
 
     @Override

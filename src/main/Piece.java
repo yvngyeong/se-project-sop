@@ -1,3 +1,5 @@
+package main;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -7,14 +9,12 @@ public class Piece {
     private int color;
     private int ownerId;
     private boolean isFinished;
-    private int groupId=0;
-    private boolean hasMoved;      // 한 번이라도 움직였는지
+    private int groupId = 0;
+    private boolean hasMoved; // 한 번이라도 움직였는지
 
-    //추가
+    // 추가
     private Stack<Integer> posStack = new Stack<>();
     private List<Piece> groupPieces = new ArrayList<>();
-
-
 
     public Piece(int ownerId, int color, int groupId) {
         this.position = 0;
@@ -25,13 +25,11 @@ public class Piece {
         this.hasMoved = false;
     }
 
-    public int getPosition()
-    {
+    public int getPosition() {
         return position;
     }
 
-    public void setPosition(int newPosition)
-    {
+    public void setPosition(int newPosition) {
         // 움직였다는 표시
         if (newPosition != this.position) {
             hasMoved = true;
@@ -45,13 +43,11 @@ public class Piece {
         }
     }
 
-    public boolean isFinished()
-    {
+    public boolean isFinished() {
         return isFinished;
     }
 
-    public void finish()
-    {
+    public void finish() {
         this.isFinished = true;
     }
 
@@ -71,18 +67,16 @@ public class Piece {
         return hasMoved;
     }
 
-    //추가
+    // 추가
     public void grouping(Piece otherPiece) {
         this.groupId = 1;
         otherPiece.groupId = 1;
 
-        if (!this.groupPieces.contains(otherPiece))
-        {
+        if (!this.groupPieces.contains(otherPiece)) {
             this.groupPieces.add(otherPiece);
         }
 
-        if (!otherPiece.groupPieces.contains(this))
-        {
+        if (!otherPiece.groupPieces.contains(this)) {
             otherPiece.groupPieces.add(this);
         }
     }
@@ -95,8 +89,7 @@ public class Piece {
         posStack.push(pos);
     }
 
-    public int popPreviousPosition()
-    {
+    public int popPreviousPosition() {
         if (!posStack.isEmpty()) {
             return posStack.pop();
         }

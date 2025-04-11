@@ -1,6 +1,10 @@
+package test;
+
 import java.util.Scanner;
 
-public class TestYut extends Yut{
+import main.Yut;
+
+public class TestYut extends Yut {
     private Scanner scanner = new Scanner(System.in);
 
     @Override

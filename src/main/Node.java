@@ -1,3 +1,5 @@
+package main;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,7 +7,7 @@ abstract class Node {
     private int nodeID;
     private List<Piece> ownedPieces;
 
-    //ui용 위치
+    // ui용 위치
     private int x;
     private int y;
 
@@ -18,19 +20,15 @@ abstract class Node {
         return nodeID;
     }
 
-    public int checkOwner(Piece piece)
-    {
+    public int checkOwner(Piece piece) {
         return piece.getOwnerId();
     }
 
-
-    public List<Piece> getOwnedPieces()
-    {
+    public List<Piece> getOwnedPieces() {
         return ownedPieces;
     }
 
-    public void setOwnedPieces(List<Piece> ownedPieces)
-    {
+    public void setOwnedPieces(List<Piece> ownedPieces) {
         this.ownedPieces = ownedPieces;
     }
 

@@ -1,3 +1,5 @@
+package main;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -18,7 +20,7 @@ public class Game {
             Player currentPlayer = players.get(currentPlayerIndex);
 
             List<Integer> yutResult = new ArrayList<>();
-            while(true){
+            while (true) {
                 Integer yutValue = yut.getResult();
                 yutResult.add(yutValue);
                 if (yutValue == -1 || yutValue == 1 || yutValue == 2 || yutValue == 3) {
