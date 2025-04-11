@@ -22,7 +22,7 @@ public class Service {
         // 플레이어 리스트 생성
         List<Player> players = new ArrayList<>();
         for (int i = 1; i <= playerNum; i++) {
-            players.add(new Player(i)); // i를 id로 받아서 Player 추가
+            players.add(new Player(i, pieceNum)); // i를 id로 받아서 Player 추가
         }
         game.setPlayers(players);
 
