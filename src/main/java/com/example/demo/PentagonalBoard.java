@@ -16,7 +16,7 @@ public class PentagonalBoard extends Board {
     public void createNodes() {
 
         for (int i = 0; i < 37; i++)
-            nodes.add(new Node(i));
+            nodes.add(new NormalNode(i));
     }
 
     @Override

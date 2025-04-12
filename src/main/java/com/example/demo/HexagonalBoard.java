@@ -1,6 +1,6 @@
 package com.example.demo;
-//6각형
 
+//6각형
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +16,7 @@ public class HexagonalBoard extends Board {
     public void createNodes() {
 
         for (int i = 0; i < 44; i++)
-            nodes.add(new Node(i));
+            nodes.add(new NormalNode(i));
     }
 
     @Override

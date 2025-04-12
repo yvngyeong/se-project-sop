@@ -16,7 +16,7 @@ public class TetragonalBoard extends Board {
     public void createNodes() {
 
         for (int i = 0; i < 30; i++)
-            nodes.add(new Node(i));
+            nodes.add(new NormalNode(i));
     }
 
     @Override
