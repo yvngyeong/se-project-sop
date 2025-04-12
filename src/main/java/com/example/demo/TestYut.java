@@ -1,9 +1,13 @@
-package main;
+package com.example.demo;
 
 import java.util.Scanner;
 
 public class TestYut extends Yut {
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner;
+
+    public TestYut(Scanner scanner) {
+        this.scanner = scanner;
+    }
 
     @Override
     public Integer getResult() {
@@ -11,6 +15,12 @@ public class TestYut extends Yut {
 
         while (true) {
             System.out.print("윷 값 입력 (빽도:-1, 도:1, 개:2, 걸:3, 윷:4, 모:5): ");
+            if (!scanner.hasNextInt()) {
+                scanner.next(); // 소비
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                continue;
+            }
+
             input = scanner.nextInt();
 
             // 유효 범위 확인
