@@ -49,11 +49,6 @@ public class TetragonalBoard extends Board {
     }
 
     @Override
-    public void createBoard() {
-
-    }
-
-    @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
 
         // 빽도

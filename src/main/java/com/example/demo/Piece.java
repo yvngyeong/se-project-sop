@@ -21,6 +21,7 @@ public class Piece {
         this.ownerId = ownerId;
         this.groupId = groupId;
         this.isFinished = false;
+
     }
 
     public int getPosition() {
@@ -28,7 +29,6 @@ public class Piece {
     }
 
     public void setPosition(int newPosition) {
-        // 움직였다는 표시
         this.position = newPosition;
     }
 
