@@ -1,4 +1,9 @@
 name: Run JUnit Tests
+  if: always()
+  uses: actions/upload-artifact@v3
+  with:
+    name: test-report
+    path: build/reports/tests/test
 
 on:
   push:
