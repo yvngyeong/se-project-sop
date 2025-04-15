@@ -2,7 +2,7 @@ name: Run JUnit Tests
 
 on:
   push:
-    branches: [ main, test-sunggyeong ]
+    branches: [ main, test-sunggyeong, test ]
   pull_request:
     branches: [ main ]
 
