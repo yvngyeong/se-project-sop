@@ -1,5 +1,4 @@
-package com.example.demo;
-//4각형
+package com.example.demo;//4각형
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +13,13 @@ public class TetragonalBoard extends Board {
 
     @Override
     public void createNodes() {
-
-        for (int i = 0; i < 30; i++)
-            nodes.add(new NormalNode(i));
+        for (int i = 0; i < 30; i++) {
+            if (i == 0 || i == 5 || i == 10 || i == 15 || i == 20 ) {
+                nodes.add(new CornerNode(i));  // 예: CornerNode
+            } else {
+                nodes.add(new NormalNode(i));  // NormalNode
+            }
+        }
     }
 
     @Override
@@ -39,21 +42,24 @@ public class TetragonalBoard extends Board {
         edges.put(26, List.of(15));
         edges.put(20, List.of(25));
 
+        // 0 → 다음 노드 없음 → 이동 불가 → 승리 조건 발생
+        edges.put(0, List.of()); // 또는 edges.remove(0)
+
+
     }
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
 
-        if (myPiece.isFinished()) // 말이 끝까지 갔으면 더 움직일 수 없음
-            return;
-
-        int position = myPiece.getPosition(); // 말의 현재 위치 가져옴
-        Node currentNode = nodes.get(position); // 말이 현재 위치해 있는 노드 가져옴
-        currentNode.remove(myPiece); // 현재 위치해 있는 노드에서 말 삭제
-
         // 빽도
         if (yutValue == -1) {
+            if (myPiece.isFinished())
+                return;
+
             int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
+            int position = myPiece.getPosition();
+            nodes.get(position).remove(myPiece);
+
             if (prev != -1) // 뒤로 갈 수 있을 때
             {
                 position = prev;
@@ -66,6 +72,20 @@ public class TetragonalBoard extends Board {
             nodes.get(position).add(myPiece);
             return;
         }
+
+        // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
+        if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
+            nodes.get(0).remove(myPiece);
+            myPiece.setPosition(1); // 0 → 1
+            myPiece.pushPreviousPosition(0);
+            yutValue--; // 이미 1칸 이동했으므로 감소
+        }
+
+        int position = myPiece.getPosition(); // 말의 현재 위치 가져옴
+        Node currentNode = nodes.get(position); // 말이 현재 위치해 있는 노드 가져옴
+        currentNode.remove(myPiece); // 현재 위치해 있는 노드에서 말 삭제
+
+
 
         if (position == 5) // 시작 위치가 5일때(5에서 딱 멈췄을때)
         {
@@ -91,7 +111,7 @@ public class TetragonalBoard extends Board {
 
             if (nextPosition == null || nextPosition.isEmpty()) {
                 // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
-                System.out.println("승리");
+                System.out.println("도착");
                 myPiece.finish();
                 position = 29; // 명시적으로 승리 위치 지정
                 break;
@@ -100,11 +120,6 @@ public class TetragonalBoard extends Board {
             myPiece.pushPreviousPosition(position);
             position = nextPosition.get(0);
 
-            if (position == 29) {
-                System.out.println("승리");
-                myPiece.finish();
-                break;
-            }
         }
 
         // 잡기 & 그룹핑

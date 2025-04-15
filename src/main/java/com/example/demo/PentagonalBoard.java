@@ -1,5 +1,4 @@
-package com.example.demo;
-//5각형
+package com.example.demo;//5각형
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +13,13 @@ public class PentagonalBoard extends Board {
 
     @Override
     public void createNodes() {
-
-        for (int i = 0; i < 37; i++)
-            nodes.add(new NormalNode(i));
+        for (int i = 0; i < 44; i++) {
+            if (i == 0 || i == 5 || i == 10 || i == 15 || i == 30) {
+                nodes.add(new CornerNode(i));  // 예: CornerNode
+            } else {
+                nodes.add(new NormalNode(i));  // NormalNode
+            }
+        }
     }
 
     @Override

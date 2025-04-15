@@ -1,4 +1,5 @@
-package com.example.demo;
+package com.example.demo;//6각형
+
 
 //6각형
 import java.util.ArrayList;
