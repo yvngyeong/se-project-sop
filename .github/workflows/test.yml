@@ -22,7 +22,7 @@ jobs:
         run: ./gradlew test
         continue-on-error: true
 
-      - name: Run JUnit Tests
+      - name: Upload JUnit Test Report
         if: always()
         uses: actions/upload-artifact@v3
         with:
