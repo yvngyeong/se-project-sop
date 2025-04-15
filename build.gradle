@@ -12,8 +12,10 @@ repositories {
 dependencies {
     // JUnit 5 의존성 추가
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.mockito:mockito-core:5.10.0'
 }
 
 test {
     useJUnitPlatform()
+    maxHeapSize = "1G" // 기본은 512MB인데, 1GB로 증가시킴
 }

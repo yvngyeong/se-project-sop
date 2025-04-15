@@ -12,7 +12,7 @@ abstract class Node {
     private int y;
 
     public Node(int positionId) {
-        this.nodeID = nodeID;
+        this.nodeID = positionId;
         this.ownedPieces = new ArrayList<>();
     }
 
