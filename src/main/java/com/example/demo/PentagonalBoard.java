@@ -1,5 +1,4 @@
-package main;
-//5각형
+package com.example.demo;//5각형
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +13,13 @@ public class PentagonalBoard extends Board {
 
     @Override
     public void createNodes() {
-
-        for (int i = 0; i < 37; i++)
-            nodes.add(new Node(i));
+        for (int i = 0; i < 37; i++) {
+            if (i == 0 || i == 5 || i == 10 || i == 15 || i == 30) {
+                nodes.add(new CornerNode(i));  // 예: CornerNode
+            } else {
+                nodes.add(new NormalNode(i));  // NormalNode
+            }
+        }
     }
 
     @Override
@@ -26,29 +29,55 @@ public class PentagonalBoard extends Board {
             edges.put(i, List.of(i + 1));
         }
 
+        edges.put(5, List.of(26));
+        edges.put(10,List.of(28));
+        edges.put(15,List.of(31));
+
         edges.put(27, List.of(25));
         edges.put(29, List.of(25));
 
         edges.put(31, List.of(30));
         edges.put(30, List.of(25));
 
-        // 중심점 25에서 멈추지 않았을때
-        edges.put(25, List.of(32));
+        edges.put(25, List.of(34));
         edges.put(33, List.of(20));
 
-        // 중심점 25에서 멈췄을때
-        edges.put(34, List.of(35));
-        edges.put(35, List.of(36));
-
-    }
-
-    @Override
-    public void createBoard() {
+        edges.put(24,List.of(0));
+        edges.put(35, List.of(0));
+        edges.put(0,List.of());
 
     }
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
+        // 빽도
+        if (yutValue == -1) {
+            if (myPiece.isFinished())
+                return;
+
+            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
+            int position = myPiece.getPosition();
+            nodes.get(position).remove(myPiece);
+
+            if (prev != -1) // 뒤로 갈 수 있을 때
+            {
+                position = prev;
+                System.out.println("빽도"); // 테스트용으로 써본겁니다
+            } else // 시작지점일때
+            {
+                System.out.println("뒤로 갈 수 없음"); // 테스트용으로 써본겁니다
+            }
+            myPiece.setPosition(position);
+            nodes.get(position).add(myPiece);
+            return;
+        }
+
+        // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
+        if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1) ) {
+            myPiece.setPosition(1); // 0 → 1
+            myPiece.pushPreviousPosition(0);
+            yutValue--; // 이미 1칸 이동했으므로 감소
+        }
 
         if (myPiece.isFinished())
             return;
@@ -57,18 +86,6 @@ public class PentagonalBoard extends Board {
         Node currentNode = nodes.get(position);
         currentNode.remove(myPiece);
 
-        if (yutValue == -1) {
-            int prev = myPiece.popPreviousPosition();
-            if (prev != -1) {
-                position = prev;
-                System.out.println("빽도");
-            } else {
-                System.out.println("뒤로 갈 수 없음");
-            }
-            myPiece.setPosition(position);
-            nodes.get(position).add(myPiece);
-            return;
-        }
 
         if (position == 25) // 시작 위치가 25일때(25에서 딱 멈췄을때)
         {

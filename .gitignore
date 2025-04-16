@@ -81,3 +81,13 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
+
+
+# IntelliJ IDEA 등 IDE
+*.iml
+.idea/
+out/
+
+# 테스트 리포트
+test-results/
+coverage/

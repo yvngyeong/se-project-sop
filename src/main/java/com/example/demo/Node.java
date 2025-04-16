@@ -1,4 +1,4 @@
-package main;
+package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +7,8 @@ abstract class Node {
     private int nodeID;
     private List<Piece> ownedPieces;
 
-    // ui용 위치
-    private int x;
-    private int y;
-
     public Node(int positionId) {
-        this.nodeID = nodeID;
+        this.nodeID = positionId;
         this.ownedPieces = new ArrayList<>();
     }
 

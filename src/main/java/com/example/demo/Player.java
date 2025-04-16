@@ -1,4 +1,4 @@
-package main;
+package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.Scanner;
 public class Player {
     private int id;
     private List<Piece> pieces;
+    private int pieceCount;
     private boolean hasWon;
 
     public Player(int id, int pieceCount) {
@@ -77,4 +78,5 @@ public class Player {
     public boolean hasWon() {
         return hasWon;
     }
+
 }

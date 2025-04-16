@@ -1,23 +1,26 @@
-package main;
+package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import main.TestYut;
-
 public class Service {
+
+    private final Scanner scanner;
+
+    public Service(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
     public void startGame() {
-        Scanner scanner = new Scanner(System.in);
         Game game = new Game();
 
-        System.out.print("플레이어 수: ");
+        System.out.println("플레이어 수: ");
         int playerNum = scanner.nextInt();
         game.setPlayerNum(playerNum);
 
         System.out.print("각 플레이어의 말 개수: ");
         int pieceNum = scanner.nextInt();
-        game.setPieceNum(pieceNum * playerNum); // 전체 말 개수로 설정
 
         // 플레이어 리스트 생성
         List<Player> players = new ArrayList<>();

@@ -1,4 +1,4 @@
-package main;
+package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,4 @@ public class Game {
         this.playerNum = playerNum;
     }
 
-    public void setPieceNum(int pieceNum) {
-        this.pieceNum = pieceNum;
-    }
 }
