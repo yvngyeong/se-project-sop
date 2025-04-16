@@ -14,10 +14,10 @@ public class Piece {
     private Stack<Integer> posStack = new Stack<>();
     private List<Piece> groupPieces = new ArrayList<>();
 
-    public Piece(int ownerId, int color, int groupId) {
+    public Piece(int ownerId ) {
         this.position = 0;
         this.ownerId = ownerId;
-        this.groupId = groupId;
+        this.groupId = 0;
         this.isFinished = false;
 
     }
