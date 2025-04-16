@@ -6,7 +6,6 @@ import java.util.Stack;
 
 public class Piece {
     private int position;
-    private int color;
     private int ownerId;
     private boolean isFinished;
     private int groupId = 0;
@@ -17,7 +16,6 @@ public class Piece {
 
     public Piece(int ownerId, int color, int groupId) {
         this.position = 0;
-        this.color = color;
         this.ownerId = ownerId;
         this.groupId = groupId;
         this.isFinished = false;
@@ -38,10 +36,6 @@ public class Piece {
 
     public void finish() {
         this.isFinished = true;
-    }
-
-    public int getColor() {
-        return color;
     }
 
     public int getOwnerId() {

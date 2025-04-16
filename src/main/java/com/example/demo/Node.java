@@ -7,10 +7,6 @@ abstract class Node {
     private int nodeID;
     private List<Piece> ownedPieces;
 
-    // ui용 위치
-    private int x;
-    private int y;
-
     public Node(int positionId) {
         this.nodeID = positionId;
         this.ownedPieces = new ArrayList<>();

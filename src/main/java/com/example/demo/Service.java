@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
 public class Service {
 
     private final Scanner scanner;
 
-    public Service(Scanner scanner){
+    public Service(Scanner scanner) {
         this.scanner = scanner;
     }
 
@@ -22,7 +21,6 @@ public class Service {
 
         System.out.print("각 플레이어의 말 개수: ");
         int pieceNum = scanner.nextInt();
-        game.setPieceNum(pieceNum * playerNum); // 전체 말 개수로 설정
 
         // 플레이어 리스트 생성
         List<Player> players = new ArrayList<>();

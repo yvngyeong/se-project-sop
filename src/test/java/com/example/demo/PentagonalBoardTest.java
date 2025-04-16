@@ -12,35 +12,39 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HexagonalBoardTest {
-    private HexagonalBoard board;
+public class PentagonalBoardTest {
+    private PentagonalBoard board;
     private Piece piece;
-
 
     @BeforeEach
     void setUp() {
-        board = new HexagonalBoard();
+        board = new PentagonalBoard();
         board.createNodes();
         board.createEdges();
-        piece = new Piece(1, 1, 0);
+        piece = new Piece(1,1,0);
         piece.setPosition(0);
     }
 
     @Test
     void testCreateNodes() {
         assertNotNull(board.nodes, "노드 리스트가 null이 아닙니다.");
-        assertEquals(44, board.nodes.size(), "노드의 개수는 44이어야 합니다.");
+        assertEquals(37, board.nodes.size(), "노드의 개수는 37이어야 합니다.");
     }
 
     @Test
     void testCreateEdges() {
         assertNotNull(board.edges, "엣지 맵이 null이 아닙니다.");
-        assertEquals(List.of(38), board.edges.get(37), "37번 노드의 엣지는 38이어야 합니다.");
-        assertEquals(List.of(30), board.edges.get(38), "38번 노드의 엣지는 30이어야 합니다.");
+        assertEquals(List.of(26), board.edges.get(5), "5번 노드의 엣지는 26이어야 합니다.");
+        assertEquals(List.of(28), board.edges.get(10), "10번 노드의 엣지는 28이어야 합니다.");
+        assertEquals(List.of(31), board.edges.get(15), "15번 노드의 엣지는 31이어야 합니다.");
+        assertEquals(List.of(25), board.edges.get(30), "30번 노드의 엣지는 25이어야 합니다.");
+        assertEquals(List.of(0), board.edges.get(35), "35번 노드의 엣지는 0이어야 합니다.");
+        assertEquals(List.of(0), board.edges.get(24), "24번 노드의 엣지는 0이어야 합니다.");
     }
 
     @Test
     void testMovePosition_NormalMove() {
+        Piece piece = new Piece(1, 1, 0); // 플레이어 1의 말 생성
         piece.setPosition(0); // 초기 위치 설정
         board.nodes.get(0).add(piece); // 노드에 말 추가
 
@@ -62,52 +66,34 @@ public class HexagonalBoardTest {
         assertTrue(board.nodes.get(4).getOwnedPieces().contains(piece));
         assertFalse(board.nodes.get(5).getOwnedPieces().contains(piece), "5번 노드에는 말이 없어야 합니다.");
     }
+
     @Test
-    void testMovePosition_JustReachEnd_35() {
+    void testMovePosition_JustReachEnd() {
         // 35에서 윷값 1 → 0 → 아직 finish 아님
         piece.setPosition(35);
-        board.nodes.get(35).add(piece);
-
         board.movePosition(piece, 1); // 딱 0 도달
-
         assertFalse(piece.isFinished(), "딱 0에 도달했을 때는 아직 승리 상태가 아님");
         assertEquals(0, piece.getPosition(), "위치는 0이지만 승리 상태 아님");
     }
 
     @Test
-    void testMovePosition_OverEnd_35() {
-        // 35에서 윷값 2 → 0을 넘음 → 승리 처리
-        piece.setPosition(35);
-        board.nodes.get(35).add(piece);
-
+    void testMovePosition_OverEnd() {
+        // 24에서 윷값 2 → 0을 넘음 → 승리 처리
+        Piece piece = new Piece(1, 1, 0);
+        piece.setPosition(24);
         board.movePosition(piece, 2); // 35을 '지나쳐서' 이동 불가 → 승리
 
         assertTrue(piece.isFinished(), "종점 이후로 이동하려 해서 승리 처리되어야 함");
-        assertEquals(43, piece.getPosition(), "승리 위치는 43");
+        assertEquals(36, piece.getPosition(), "승리 위치는 36");
     }
 
+    //빽도 시작위치에서=> 무효처리
     @Test
-    void testMovePosition_Fail_29() {
-        // 29에서 윷값 1 → 정확히 43 → 실패
-        piece.setPosition(29);
-        board.nodes.get(29).add(piece);
+    void testNoBackDoFromStart() {
+        board.movePosition(piece, -1); // 시작 지점이라 빽도 불가
 
-        board.movePosition(piece, 1);
-
-        assertFalse(piece.isFinished(), "29 → 1칸 이동해 43 도달했지만 승리는 아님");
         assertEquals(0, piece.getPosition());
-    }
-
-    @Test
-    void testMovePosition_Success_29() {
-        // 29에서 윷값 2 → 43 넘어가서 승리 처리
-        piece.setPosition(29);
-        board.nodes.get(29).add(piece);
-
-        board.movePosition(piece, 2); // 29 → 43 → 없음 → finish()
-
-        assertTrue(piece.isFinished(), "29에서 윷값 2로 종점 이후 이동 시 승리");
-        assertEquals(43, piece.getPosition());
+        assertTrue(board.nodes.get(0).getOwnedPieces().contains(piece));
     }
 
     //다른 팀 말 잡기

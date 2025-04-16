@@ -64,7 +64,4 @@ public class Game {
         this.playerNum = playerNum;
     }
 
-    public void setPieceNum(int pieceNum) {
-        this.pieceNum = pieceNum;
-    }
 }

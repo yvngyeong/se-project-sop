@@ -47,6 +47,27 @@ public class HexagonalBoard extends Board {
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
+        // 빽도
+        if (yutValue == -1) {
+            if (myPiece.isFinished())
+                return;
+
+            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
+            int position = myPiece.getPosition();
+            nodes.get(position).remove(myPiece);
+
+            if (prev != -1) // 뒤로 갈 수 있을 때
+            {
+                position = prev;
+                System.out.println("빽도"); // 테스트용으로 써본겁니다
+            } else // 시작지점일때
+            {
+                System.out.println("뒤로 갈 수 없음"); // 테스트용으로 써본겁니다
+            }
+            myPiece.setPosition(position);
+            nodes.get(position).add(myPiece);
+            return;
+        }
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
         if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
             myPiece.setPosition(1); // 0 → 1
@@ -60,18 +81,6 @@ public class HexagonalBoard extends Board {
         Node currentNode = nodes.get(position);
         currentNode.remove(myPiece);
 
-        if (yutValue == -1) {
-            int prev = myPiece.popPreviousPosition();
-            if (prev != -1) {
-                position = prev;
-                System.out.println("빽도");
-            } else {
-                System.out.println("뒤로 갈 수 없음");
-            }
-            myPiece.setPosition(position);
-            nodes.get(position).add(myPiece);
-            return;
-        }
 
         if (position == 5) {
             myPiece.pushPreviousPosition(position);

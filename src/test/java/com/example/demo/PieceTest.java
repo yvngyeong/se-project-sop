@@ -14,7 +14,6 @@ class PieceTest {
 
         assertEquals(0, piece.getPosition());
         assertEquals(1, piece.getOwnerId());
-        assertEquals(2, piece.getColor());
         assertEquals(0, piece.getGroupId());
         assertFalse(piece.isFinished());
         //assertFalse(piece.hasMoved());
@@ -28,8 +27,6 @@ class PieceTest {
         //assertTrue(piece.hasMoved());
         assertFalse(piece.isFinished());
 
-        piece.setPosition(0); // 도착 조건
-        assertTrue(piece.isFinished());
     }
 
     @Test

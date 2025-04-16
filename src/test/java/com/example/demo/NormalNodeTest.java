@@ -3,23 +3,38 @@ package com.example.demo;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NormalNodeTest {
+import org.junit.jupiter.api.BeforeEach;
 
-    @Test
-    void testNormalNodeConstructor() {
-        NormalNode node = new NormalNode(42);
-        assertEquals(42, node.getNodeID(), "NormalNode는 Node의 생성자(super)를 통해 ID를 설정해야 합니다.");
+public class NormalNodeTest {
+    CornerNode node;
+    Piece piece;
+
+    @BeforeEach
+    void setUp() {
+        node = new CornerNode(7); // ID 7 할당
+        piece = new Piece(1, 1, 0);
     }
 
     @Test
-    void testAddAndRemovePieceDelegatedToNode() {
-        NormalNode node = new NormalNode(1);
-        Piece piece = new Piece(1, 2, 0);
+    void checkedID() {
+        assertEquals(7, node.getNodeID(), "nodeID는 생성자에서 설정한 값 7이어야 한다");
+    }
 
-        node.add(piece); // Node의 add() 메서드 상속 사용
-        assertTrue(node.getOwnedPieces().contains(piece), "Piece는 정상적으로 추가되어야 합니다.");
+    @Test
+    void testAddAndRemovePiece() {
+        node.add(piece);
+        assertTrue(node.getOwnedPieces().contains(piece), "말이 추가되어 있어야 합니다.");
 
-        node.remove(piece); // Node의 remove() 메서드 상속 사용
-        assertFalse(node.getOwnedPieces().contains(piece), "Piece는 정상적으로 제거되어야 합니다.");
+        node.remove(piece);
+        assertFalse(node.getOwnedPieces().contains(piece), "말이 제거되어 있어야 합니다.");
+    }
+
+    @Test
+    void testCheckedOwner() {
+        node.add(piece);
+        // checkOwner 테스트
+        int ownerId = node.checkOwner(piece);
+        assertEquals(1, ownerId, "말의 소유자 ID는 1이어야 합니다.");
+
     }
 }
