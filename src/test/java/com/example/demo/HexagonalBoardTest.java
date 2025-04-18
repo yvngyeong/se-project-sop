@@ -22,7 +22,7 @@ public class HexagonalBoardTest {
         board = new HexagonalBoard();
         board.createNodes();
         board.createEdges();
-        piece = new Piece(1, 1, 0);
+        piece = new Piece(1, 0);
         piece.setPosition(0);
     }
 
@@ -113,7 +113,7 @@ public class HexagonalBoardTest {
     //다른 팀 말 잡기
     @Test
     void testCaptureOpponent() {
-        Piece enemy = new Piece(2,2,0); // 다른 팀
+        Piece enemy = new Piece(2,0); // 다른 팀
         enemy.setPosition(3);
         board.nodes.get(3).add(enemy);
 
@@ -131,7 +131,7 @@ public class HexagonalBoardTest {
     //말 업기 (Grouping)
     @Test
     void testGroupingWithAlly() {
-        Piece ally = new Piece(1,1,0); // 같은 팀
+        Piece ally = new Piece(1,0); // 같은 팀
         ally.setPosition(3);
         board.nodes.get(3).add(ally);
 

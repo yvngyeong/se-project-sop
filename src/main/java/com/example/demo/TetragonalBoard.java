@@ -56,7 +56,8 @@ public class TetragonalBoard extends Board {
             if (myPiece.isFinished())
                 return;
 
-            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
+
+            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치 //대표 piece 스택 pop
             int position = myPiece.getPosition();
             nodes.get(position).remove(myPiece);
 
@@ -68,17 +69,35 @@ public class TetragonalBoard extends Board {
             {
                 System.out.println("뒤로 갈 수 없음"); // 테스트용으로 써본겁니다
             }
-            myPiece.setPosition(position);
-            nodes.get(position).add(myPiece);
+            /* ⚙️ 0‑2) 위치·노드 동기화 */
+            for (Piece g : myPiece.getGroupedPieces()) {
+                nodes.get(g.getPosition()).remove(g);     // 기존 노드 제거
+                g.setPosition(position);
+                nodes.get(position).add(g);
+            }
             return;
         }
+        /* ---------------- 정상 이동(1~5) 시작 전 ---------------- */
+
 
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
         if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
-            nodes.get(0).remove(myPiece);
-            myPiece.setPosition(1); // 0 → 1
-            myPiece.pushPreviousPosition(0);
-            yutValue--; // 이미 1칸 이동했으므로 감소
+            /* ✅ 그룹원 전원 스택 push + 노드 이동 + 좌표 갱신 */
+            for (Piece g : myPiece.getGroupedPieces()) {
+                nodes.get(0).remove(g);        // 0번 노드에서 제거
+                g.pushPreviousPosition(0);     // 이동 전 위치 기록
+                g.setPosition(1);              // 모두 1번 위치로
+                if (!nodes.get(1).getOwnedPieces().contains(g))      // 중복 방지
+                    nodes.get(1).add(g);       // 1번 노드에 등록
+            }
+
+            yutValue--;        // 이미 한 칸 이동했으므로 감소// 이후 로직에서 사용할 현재 위치
+        }
+        /* ---------- 그밖의 경우: 이동 직전 스택 push ---------- */
+        else {
+            for (Piece g : myPiece.getGroupedPieces()) {
+                g.pushPreviousPosition(g.getPosition());
+            }
         }
 
         int position = myPiece.getPosition(); // 말의 현재 위치 가져옴
@@ -117,7 +136,10 @@ public class TetragonalBoard extends Board {
                 break;
             }
 
-            myPiece.pushPreviousPosition(position);
+            // ⚙ (D) 대표 + 그룹 전원의 스택 push
+            for (Piece g : myPiece.getGroupedPieces())
+                g.pushPreviousPosition(position);
+
             position = nextPosition.get(0);
 
         }
@@ -142,16 +164,13 @@ public class TetragonalBoard extends Board {
             }
         }
 
-        myPiece.setPosition(position);
-        nodes.get(position).add(myPiece);
 
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
-                }
-            }
+        /* ---------------- 최종 위치·노드 동기화 ---------------- */
+        for (Piece g : myPiece.getGroupedPieces()) {
+            nodes.get(g.getPosition()).remove(g);
+            g.setPosition(position);
+            if (!nodes.get(position).getOwnedPieces().contains(g))        // 중복 방지
+                nodes.get(position).add(g);
         }
 
     }

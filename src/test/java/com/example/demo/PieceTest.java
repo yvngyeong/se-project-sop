@@ -10,7 +10,7 @@ class PieceTest {
 
     @Test
     void initialPiece_hasCorrectDefaultValues() {
-        Piece piece = new Piece(1, 2, 0);
+        Piece piece = new Piece(1,  0);
 
         assertEquals(0, piece.getPosition());
         assertEquals(1, piece.getOwnerId());
@@ -21,7 +21,7 @@ class PieceTest {
 
     @Test
     void setPosition_marksHasMovedAndFinishCorrectly() {
-        Piece piece = new Piece(1, 1, 0);
+        Piece piece = new Piece(1,  0);
 
         piece.setPosition(5);
         //assertTrue(piece.hasMoved());
@@ -31,7 +31,7 @@ class PieceTest {
 
     @Test
     void finishMethod_setsIsFinishedTrue() {
-        Piece piece = new Piece(1, 1, 0);
+        Piece piece = new Piece(1, 0);
 
         assertFalse(piece.isFinished());
         piece.finish();
@@ -40,13 +40,12 @@ class PieceTest {
 
     @Test
     void grouping_setsSameGroupAndAddsToGroupList() {
-        Piece p1 = new Piece(1, 1, 0);
-        Piece p2 = new Piece(1, 1, 0);
+        Piece p1 = new Piece(1,  0);
+        Piece p2 = new Piece(1,  0);
 
         p1.grouping(p2);
 
-        assertEquals(1, p1.getGroupId());
-        assertEquals(1, p2.getGroupId());
+        assertEquals(p1.getGroupId(), p2.getGroupId());
 
         List<Piece> group1 = p1.getGroupedPieces();
         List<Piece> group2 = p2.getGroupedPieces();
@@ -57,7 +56,7 @@ class PieceTest {
 
     @Test
     void pushAndPopPreviousPosition_behavesLikeStack() {
-        Piece piece = new Piece(1, 1, 0);
+        Piece piece = new Piece(1, 0);
 
         piece.pushPreviousPosition(3);
         piece.pushPreviousPosition(5);

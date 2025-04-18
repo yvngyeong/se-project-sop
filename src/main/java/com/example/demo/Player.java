@@ -18,7 +18,7 @@ public class Player {
         int color = (id - 1) % 4 + 1; // 플레이어 id에 따라 색상 1~4를 자동 배정
 
         for (int i = 0; i < pieceCount; i++) {
-            pieces.add(new Piece(id, color, i)); // 정해진 color로 Piece 생성
+            pieces.add(new Piece(id, i));
         }
     }
 

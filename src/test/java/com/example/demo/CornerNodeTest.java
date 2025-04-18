@@ -12,7 +12,7 @@ public class CornerNodeTest {
     @BeforeEach
     void setUp() {
         node = new CornerNode(7); // ID 7 할당
-        piece = new Piece(1, 1, 0);
+        piece = new Piece(1, 0);
     }
 
     @Test

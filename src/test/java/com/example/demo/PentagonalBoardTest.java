@@ -21,7 +21,7 @@ public class PentagonalBoardTest {
         board = new PentagonalBoard();
         board.createNodes();
         board.createEdges();
-        piece = new Piece(1,1,0);
+        piece = new Piece(1,0);
         piece.setPosition(0);
     }
 
@@ -44,7 +44,7 @@ public class PentagonalBoardTest {
 
     @Test
     void testMovePosition_NormalMove() {
-        Piece piece = new Piece(1, 1, 0); // 플레이어 1의 말 생성
+        Piece piece = new Piece(1, 0); // 플레이어 1의 말 생성
         piece.setPosition(0); // 초기 위치 설정
         board.nodes.get(0).add(piece); // 노드에 말 추가
 
@@ -79,7 +79,7 @@ public class PentagonalBoardTest {
     @Test
     void testMovePosition_OverEnd() {
         // 24에서 윷값 2 → 0을 넘음 → 승리 처리
-        Piece piece = new Piece(1, 1, 0);
+        Piece piece = new Piece(1, 0);
         piece.setPosition(24);
         board.movePosition(piece, 2); // 35을 '지나쳐서' 이동 불가 → 승리
 
@@ -99,7 +99,7 @@ public class PentagonalBoardTest {
     //다른 팀 말 잡기
     @Test
     void testCaptureOpponent() {
-        Piece enemy = new Piece(2,2,0); // 다른 팀
+        Piece enemy = new Piece(2,0); // 다른 팀
         enemy.setPosition(3);
         board.nodes.get(3).add(enemy);
 
@@ -117,7 +117,7 @@ public class PentagonalBoardTest {
     //말 업기 (Grouping)
     @Test
     void testGroupingWithAlly() {
-        Piece ally = new Piece(1,1,0); // 같은 팀
+        Piece ally = new Piece(1,0); // 같은 팀
         ally.setPosition(3);
         board.nodes.get(3).add(ally);
 

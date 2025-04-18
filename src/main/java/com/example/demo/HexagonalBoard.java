@@ -47,105 +47,90 @@ public class HexagonalBoard extends Board {
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
-        // 빽도
+
+        /* ────── 1. 빽도(‑1) 처리 ────── */
         if (yutValue == -1) {
-            if (myPiece.isFinished())
-                return;
+            if (myPiece.isFinished()) return;
 
-            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
-            int position = myPiece.getPosition();
-            nodes.get(position).remove(myPiece);
 
-            if (prev != -1) // 뒤로 갈 수 있을 때
-            {
-                position = prev;
-                System.out.println("빽도"); // 테스트용으로 써본겁니다
-            } else // 시작지점일때
-            {
-                System.out.println("뒤로 갈 수 없음"); // 테스트용으로 써본겁니다
+            int prev = myPiece.popPreviousPosition();        // 대표 pop
+            int cur  = myPiece.getPosition();
+            int pos  = (prev != -1) ? prev : cur;
+
+            // (B) 위치·노드 전원 동기화
+            for (Piece g : myPiece.getGroupedPieces()) {
+                nodes.get(g.getPosition()).remove(g);
+                g.setPosition(pos);
+                if (!nodes.get(pos).getOwnedPieces().contains(g))
+                    nodes.get(pos).add(g);
             }
-            myPiece.setPosition(position);
-            nodes.get(position).add(myPiece);
+            System.out.println(prev != -1 ? "빽도" : "뒤로 갈 수 없음");
             return;
         }
-        // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
-        if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
-            myPiece.setPosition(1); // 0 → 1
-            myPiece.pushPreviousPosition(0);
-            yutValue--; // 이미 1칸 이동했으므로 감소
-        }
-        if (myPiece.isFinished())
-            return;
 
+        /* ────── 2. 0 → 1 첫 출발 ────── */
+        boolean firstMove = false;
+        if (myPiece.getPosition() == 0 && myPiece.popPreviousPosition() == -1) {
+            for (Piece g : myPiece.getGroupedPieces()) {
+                nodes.get(0).remove(g);
+                g.pushPreviousPosition(0);
+                g.setPosition(1);
+                if (!nodes.get(1).getOwnedPieces().contains(g))
+                    nodes.get(1).add(g);
+            }
+            yutValue--;
+            firstMove = true;
+        }
+
+        /* ────── 3. 이동 전 push ────── */
+        if (!firstMove) {
+            for (Piece g : myPiece.getGroupedPieces())
+                g.pushPreviousPosition(g.getPosition());
+        }
+
+        /* ────── 4. 현재 위치 변수 ────── */
         int position = myPiece.getPosition();
-        Node currentNode = nodes.get(position);
-        currentNode.remove(myPiece);
+        nodes.get(position).remove(myPiece);
 
+        /* ────── 5. 지름길 진입 ────── */
+        if (position == 5)  { myPiece.pushPreviousPosition(position); position = 37; yutValue--; }
+        else if (position == 10){ myPiece.pushPreviousPosition(position); position = 39; yutValue--; }
+        else if (position == 15){ myPiece.pushPreviousPosition(position); position = 41; yutValue--; }
+        else if (position == 30){ myPiece.pushPreviousPosition(position); position = 36; yutValue--; }
 
-        if (position == 5) {
-            myPiece.pushPreviousPosition(position);
-            position = 37;
-            yutValue--;
-        } else if (position == 10) {
-            myPiece.pushPreviousPosition(position);
-            position = 39;
-            yutValue--;
-        } else if (position == 15) {
-            myPiece.pushPreviousPosition(position);
-            position = 41;
-            yutValue--;
-        } else if (position == 30) {
-            myPiece.pushPreviousPosition(position);
-            position = 36;
-            yutValue--;
-        }
+        /* ────── 6. 본 이동 루프 ────── */
         for (int i = 0; i < yutValue; i++) {
-            List<Integer> nextPosition = edges.get(position);
-
-            if (nextPosition == null || nextPosition.isEmpty()) {
-                // 시작점(0)에 도달했지만 그것이 처음 도착이면 종료 아님
-                // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
-                System.out.println("승리");
+            List<Integer> next = edges.get(position);
+            if (next == null || next.isEmpty()) {                 // 도착
                 myPiece.finish();
-                position = 43; // 명시적으로 승리 위치 지정
+                position = 43;
                 break;
             }
+            for (Piece g : myPiece.getGroupedPieces())
+                g.pushPreviousPosition(position);                 // 전원 push
 
-            myPiece.pushPreviousPosition(position);
-            position = nextPosition.get(0);
-
+            position = next.get(0);
+            if (position == 43) { myPiece.finish(); break; }
         }
 
-        // 잡기
+        /* ────── 7. 잡기 & 그룹핑 ────── */
         Node nextNode = nodes.get(position);
-        List<Piece> pieces = new ArrayList<>(nextNode.getOwnedPieces());
-
-        for (int i = 0; i < pieces.size(); i++) {
-            Piece opponentPiece = pieces.get(i);
-            if (opponentPiece.getOwnerId() != myPiece.getOwnerId()) {
-                nextNode.remove(pieces.get(i));
-                opponentPiece.setPosition(0);
-                nodes.get(0).add(opponentPiece);
-
-            } else if (opponentPiece.getOwnerId() == myPiece.getOwnerId()) // 같은 플레이어 말일때 -> 그룹핑
-            {
-                myPiece.grouping(opponentPiece);
-
+        for (Piece p : new ArrayList<>(nextNode.getOwnedPieces())) {
+            if (p.getOwnerId() != myPiece.getOwnerId()) {         // 잡기
+                nextNode.remove(p);
+                p.setPosition(0);
+                nodes.get(0).add(p);
+            } else if (p != myPiece) {                            // 그룹핑
+                myPiece.grouping(p);
             }
         }
 
-        myPiece.setPosition(position);
-        nodes.get(position).add(myPiece);
-
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
-                }
-            }
+        /* ────── 8. 최종 위치·노드 전원 동기화 ────── */
+        for (Piece g : myPiece.getGroupedPieces()) {
+            nodes.get(g.getPosition()).remove(g);
+            g.setPosition(position);
+            if (!nodes.get(position).getOwnedPieces().contains(g))
+                nodes.get(position).add(g);
         }
-
     }
-
 }
