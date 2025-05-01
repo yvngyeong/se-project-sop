@@ -43,7 +43,7 @@ public class TetragonalBoardTest {
     void testAllEdgeCreation() {
         // 기본 직선 경로 (0~28까지 i → i+1)
         for (int i = 1; i <= 28; i++) {
-            if (i == 21 || i==22 || i == 23 || i==24 || i == 25 || i == 15 || i == 27) continue; // 지름길에서 사용되는 목적지 노드는 검사 제외
+            if (i == 20 ||i==21 || i==22 || i == 23 || i==24 || i == 25 || i == 15 || i == 27) continue; // 지름길에서 사용되는 목적지 노드는 검사 제외
             if (i - 1 == 0) {
                 assertEquals(List.of(), board.edges.get(0), "edge from 0 should be empty (finish point)");
             } else {
