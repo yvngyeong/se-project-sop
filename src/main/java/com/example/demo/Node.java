@@ -3,7 +3,7 @@ package com.example.demo;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class Node {
+public abstract class Node {
     private int nodeID;
     private List<Piece> ownedPieces;
 

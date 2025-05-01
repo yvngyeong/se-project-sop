@@ -14,7 +14,7 @@ public class PentagonalBoard extends Board {
     @Override
     public void createNodes() {
         for (int i = 0; i < 37; i++) {
-            if (i == 0 || i == 5 || i == 10 || i == 15 || i == 30) {
+            if (i == 0 || i == 5 || i == 10 || i == 15 || i == 20 || i==25) {
                 nodes.add(new CornerNode(i));  // 예: CornerNode
             } else {
                 nodes.add(new NormalNode(i));  // NormalNode

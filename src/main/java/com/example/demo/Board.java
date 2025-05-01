@@ -1,9 +1,10 @@
 package com.example.demo;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-abstract class Board {
+public abstract class Board {
     public List<Node> nodes;
     public Map<Integer, List<Integer>> edges;
 
@@ -13,4 +14,9 @@ abstract class Board {
 
     public abstract void createEdges(); // 각 판 마다 길 만들기
 
+    public List<Node> getNodes() { return nodes; }
+
+    public HashMap<Integer, List<Integer>> getEdges() {
+        return (HashMap<Integer, List<Integer>>) edges;
+    }
 }

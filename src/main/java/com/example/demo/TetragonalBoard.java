@@ -27,6 +27,7 @@ public class TetragonalBoard extends Board {
 
         for (int i = 0; i < 29; i++) // 지름길 아닐때는 그냥 +1
         {
+            if(i==19) continue;
             edges.put(i, List.of(i + 1));
         }
 

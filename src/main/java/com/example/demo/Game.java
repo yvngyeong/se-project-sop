@@ -11,6 +11,20 @@ public class Game {
     private int playerNum;
     private int pieceNum;
 
+    // 생성자 추가
+    public Game(int playerNum, int pieceNum, Yut yut, Board board) {
+        this.playerNum = playerNum;
+        this.pieceNum = pieceNum;
+        this.yut = yut;
+        this.board = board;
+        this.players = new ArrayList<>();
+
+        // 플레이어 생성
+        for (int i = 1; i <= playerNum; i++) {
+            players.add(new Player(i, pieceNum));
+        }
+    }
+
     public void start() {
         boolean gameOver = false;
         int currentPlayerIndex = 0;
@@ -47,21 +61,4 @@ public class Game {
             }
         }
     }
-
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
-    }
-
-    public void setYut(Yut yut) {
-        this.yut = yut;
-    }
-
-    public void setPlayerNum(int playerNum) {
-        this.playerNum = playerNum;
-    }
-
 }

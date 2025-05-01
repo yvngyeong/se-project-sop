@@ -16,7 +16,7 @@ public class HexagonalBoard extends Board {
     @Override
     public void createNodes() {
         for (int i = 0; i < 44; i++)
-            if (i % 5 == 0) // 5의 배수는 CornerNode로 생성
+            if ((i % 5 == 0) && (i<=30) ) // 5의 배수는 CornerNode로 생성
                 nodes.add(new CornerNode(i));
             else // 나머지는 NormalNode로 생성
                 nodes.add(new NormalNode(i));
@@ -26,6 +26,7 @@ public class HexagonalBoard extends Board {
     public void createEdges() {
 
         for (int i = 0; i < 43; i++) {
+            if(i==32) continue;
             edges.put(i, List.of(i + 1));
         }
         edges.put(29, List.of(0));
