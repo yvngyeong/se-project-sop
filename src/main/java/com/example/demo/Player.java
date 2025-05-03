@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import view.PieceComponent;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -74,4 +76,13 @@ public class Player {
         return pieces;
     }
 
+    public List<Piece> getUnusedPieces(){
+        List<Piece> unusedPieces = new ArrayList<>();
+        for (Piece piece : getPieces()) {
+            if(piece.isFinished()==false && piece.getPosition()==0){
+                unusedPieces.add(piece);
+            }
+        }
+        return  unusedPieces;
+    }
 }

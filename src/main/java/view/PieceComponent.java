@@ -4,12 +4,14 @@ import com.example.demo.Piece;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class PieceView extends JComponent {
+public class PieceComponent extends JComponent {
     private final Piece piece;
     private static final int DIAMETER = 30;
 
-    public PieceView(Piece piece) {
+    public PieceComponent(Piece piece) {
         this.piece = piece;
         setPreferredSize(new Dimension(DIAMETER, DIAMETER));
         setSize(DIAMETER, DIAMETER);
@@ -48,5 +50,9 @@ public class PieceView extends JComponent {
         int textWidth = fm.stringWidth(text);
         int textHeight = fm.getAscent();
         g2.drawString(text, (DIAMETER - textWidth) / 2, (DIAMETER + textHeight / 2) / 2);
+    }
+
+    private void mouseClicked(){
+
     }
 }

@@ -1,7 +1,7 @@
 package viewTest;
 
 import com.example.demo.Piece;
-import view.PieceView;
+import view.PieceComponent;
 
 import javax.swing.*;
 
@@ -10,7 +10,7 @@ public class TestPieceView {
 
         Piece testPiece = new Piece(1);
 
-        PieceView pieceView = new PieceView(testPiece);
+        PieceComponent pieceView = new PieceComponent(testPiece);
 
         pieceView.setBounds(50, 50, 30, 30);
 

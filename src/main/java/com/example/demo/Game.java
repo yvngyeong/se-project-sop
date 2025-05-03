@@ -61,4 +61,24 @@ public class Game {
             }
         }
     }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public Yut getYut() {
+        return yut;
+    }
+
+    public int getPlayerNum() {
+        return playerNum;
+    }
+
+    public int getPieceNum() {
+        return pieceNum;
+    }
 }
