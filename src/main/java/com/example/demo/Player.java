@@ -23,6 +23,17 @@ public class Player {
         }
     }
 
+    public Player(int id, List<Piece> pieces) {
+        this.id = id;
+        this.pieces = pieces;
+    }
+
+    public Player(int id) {
+        this.id = id;
+        this.pieces = new ArrayList<>();
+    }
+
+
     public Piece selectPiece() {
         Scanner scanner = new Scanner(System.in);
 

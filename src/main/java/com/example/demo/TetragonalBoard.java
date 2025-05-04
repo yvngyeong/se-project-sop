@@ -3,13 +3,14 @@ package com.example.demo;//4각형
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TetragonalBoard extends Board {
-
     public TetragonalBoard() {
         nodes = new ArrayList<>();
         edges = new HashMap<>();
     }
+
 
     @Override
     public void createNodes() {

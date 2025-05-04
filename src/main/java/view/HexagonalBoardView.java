@@ -9,6 +9,8 @@ import java.awt.geom.Ellipse2D;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+
 
 public class HexagonalBoardView extends BoardView {
 
@@ -153,39 +155,46 @@ public class HexagonalBoardView extends BoardView {
 
     @Override
     public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
-        // 모든 PieceComponent를 다시 위치시킴
-        // 1. 기존에 이 BoardView에 올라와 있던 PieceComponent 전부 제거
-        this.removeAll();
+        Component[] comps = this.getComponents();
+        for (Component c : comps) {
+            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
+                this.remove(c);
+            }
+        }
 
-        // 2. 노드 위치 계산 보장 (paintComponent가 호출되지 않았을 수 있으므로)
-        calculateNodePositions();
-
-        // 3. 각 플레이어의 말 컴포넌트 배치
+        Map<Integer, List<Piece>> positionMap = new HashMap<>();
         for (Player player : players) {
             for (Piece piece : player.getPieces()) {
-                if (piece.getPosition()==0 && !piece.isFinished()) continue; // 보드에 없는 말은 무시
-
-                Node node = board.getNodes().get(piece.getPosition());
-                if (node == null) continue;
-
-                Point nodePos = nodePositions.get(node.getNodeID());
-                if (nodePos == null) continue;
-
-                PieceComponent pieceComp = pieceComponentMap.get(piece);
-                if (pieceComp == null) continue;
-
-                Dimension size = pieceComp.getPreferredSize();
-                int pieceX = nodePos.x - size.width / 2;
-                int pieceY = nodePos.y - size.height / 2;
-
-                pieceComp.setLocation(pieceX, pieceY);
-
-                this.add(pieceComp); // 컴포넌트를 다시 boardView 위에 올림
+                if (!piece.isFinished()) {
+                    int pos = piece.getPosition();
+                    positionMap.computeIfAbsent(pos, k -> new ArrayList<>()).add(piece);
+                }
             }
+        }
+
+        for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
+            int nodeId = entry.getKey();
+            List<Piece> piecesAtSamePos = entry.getValue();
+
+            Point nodePos = nodePositions.get(nodeId);
+            if (nodePos == null) continue;
+
+            JComponent comp;
+            if (piecesAtSamePos.size() == 1) {
+                Piece piece = piecesAtSamePos.get(0);
+                comp = pieceComponentMap.get(piece);
+            } else {
+                comp = new GroupedPieceComponent(piecesAtSamePos);
+            }
+
+            comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+            comp.setOpaque(false);
+            this.add(comp);
         }
 
         this.revalidate();
         this.repaint();
+        this.paintImmediately(0, 0, getWidth(), getHeight());
     }
 
 

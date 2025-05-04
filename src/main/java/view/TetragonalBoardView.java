@@ -8,6 +8,8 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+
 
 public class TetragonalBoardView extends BoardView {
     private TetragonalBoard board;
@@ -79,10 +81,6 @@ public class TetragonalBoardView extends BoardView {
     }
 
 
-
-
-
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -126,26 +124,44 @@ public class TetragonalBoardView extends BoardView {
         g2.setColor(Color.BLACK); // 선 색상
         g2.setStroke(new BasicStroke(2)); // 선 굵기 통일 (2픽셀)
 
-        for (int nodeId : board.getEdges().keySet()) {
-            Point currentPos = nodePositions.get(nodeId);
-            if (currentPos == null) continue;
+        // 바깥 사각형 프레임
+        drawEdge(g2, 10, 9);
+        drawEdge(g2, 9, 8);
+        drawEdge(g2, 8, 7);
+        drawEdge(g2, 7, 6);
+        drawEdge(g2, 6, 5);
+        drawEdge(g2, 5, 4);
+        drawEdge(g2, 4, 3);
+        drawEdge(g2, 3, 2);
+        drawEdge(g2, 2, 1);
+        drawEdge(g2, 1, 0);
+        drawEdge(g2, 0, 19);
+        drawEdge(g2, 19, 18);
+        drawEdge(g2, 18, 17);
+        drawEdge(g2, 17, 16);
+        drawEdge(g2, 16, 15);
+        drawEdge(g2, 15, 14);
+        drawEdge(g2, 14, 13);
+        drawEdge(g2, 13, 12);
+        drawEdge(g2, 12, 11);
+        drawEdge(g2, 11, 10);
 
-            List<Integer> neighbors = board.getEdges().get(nodeId);
-            for (Integer neighborId : neighbors) {
-                Point neighborPos = nodePositions.get(neighborId);
-                if (neighborPos != null) {
-                    g2.drawLine(currentPos.x, currentPos.y, neighborPos.x, neighborPos.y);
-                }
-            }
-        }
-
-        // 추가 edge들
-        drawEdge(g2, 0, 1);
+        // 대각선 및 중심 연결
         drawEdge(g2, 5, 22);
         drawEdge(g2, 10, 24);
-        drawEdge(g2, 19, 0);
-        drawEdge(g2, 28, 0);
+        drawEdge(g2, 24, 23);
+        drawEdge(g2, 23, 20);
+        drawEdge(g2, 20, 25);
+        drawEdge(g2, 25, 26);
         drawEdge(g2, 20, 27);
+        drawEdge(g2, 27, 28);
+        drawEdge(g2, 21, 22);
+        drawEdge(g2, 21, 20);
+        drawEdge(g2, 26, 15);
+        drawEdge(g2, 28, 0);
+
+
+
     }
 
     private void drawEdge(Graphics2D g2, int fromId, int toId) {
@@ -158,39 +174,49 @@ public class TetragonalBoardView extends BoardView {
 
     @Override
     public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
-        // 모든 PieceComponent를 다시 위치시킴
-        // 1. 기존에 이 BoardView에 올라와 있던 PieceComponent 전부 제거
-        this.removeAll();
-
-        // 2. 노드 위치 계산 보장 (paintComponent가 호출되지 않았을 수 있으므로)
-        setNodePositions();
-
-        // 3. 각 플레이어의 말 컴포넌트 배치
-        for (Player player : players) {
-            for (Piece piece : player.getPieces()) {
-                if (piece.getPosition()==0 && !piece.isFinished()) continue; // 보드에 없는 말은 무시
-
-                Node node = board.getNodes().get(piece.getPosition());
-                if (node == null) continue;
-
-                Point nodePos = nodePositions.get(node.getNodeID());
-                if (nodePos == null) continue;
-
-                PieceComponent pieceComp = pieceComponentMap.get(piece);
-                if (pieceComp == null) continue;
-
-                Dimension size = pieceComp.getPreferredSize();
-                int pieceX = nodePos.x - size.width / 2;
-                int pieceY = nodePos.y - size.height / 2;
-
-                pieceComp.setLocation(pieceX, pieceY);
-
-                this.add(pieceComp); // 컴포넌트를 다시 boardView 위에 올림
+        // 말만 제거
+        Component[] comps = this.getComponents();
+        for (Component c : comps) {
+            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
+                this.remove(c);
             }
         }
 
+        Map<Integer, List<Piece>> positionMap = new HashMap<>();
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                if (!piece.isFinished()) {
+                    int pos = piece.getPosition();
+                    positionMap.computeIfAbsent(pos, k -> new ArrayList<>()).add(piece);
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
+            int nodeId = entry.getKey();
+            List<Piece> piecesAtSamePos = entry.getValue();
+
+            Point nodePos = nodePositions.get(nodeId);
+            if (nodePos == null) continue;
+
+            JComponent comp;
+            if (piecesAtSamePos.size() == 1) {
+                Piece piece = piecesAtSamePos.get(0);
+                comp = pieceComponentMap.get(piece);
+            } else {
+                comp = new GroupedPieceComponent(piecesAtSamePos);
+            }
+
+            comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+            this.add(comp);
+        }
+
         this.revalidate();
-        this.repaint();
+        this.repaint(); // board 다시 그리기
+        this.paintImmediately(0, 0, getWidth(), getHeight());
+
     }
+
+
 
 }

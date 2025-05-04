@@ -164,4 +164,31 @@ public class GameView extends JFrame {
         timer.start();
     }
 
+    public void refreshAfterCapture(List<Player> players) {
+        updateBoardPieces(players);      // 현재 말 배치 다시 그림
+        updateUnusedPieces(players);     // 잡힌 말이 오른쪽에 다시 보이게
+    }
+
+    public void showGameOverDialog(int winnerId) {
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                "🎉 플레이어 " + winnerId + "번이 승리했습니다!\n게임을 다시 시작하시겠습니까?",
+                "게임 종료",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        if (result == JOptionPane.YES_OPTION) {
+            // 예: 게임 재시작 (여기선 프로그램 재시작 처리로 대체)
+            System.out.println("게임 재시작");
+            System.exit(0); // TODO: 실제로는 게임 초기화 로직으로 교체해야 함
+        } else {
+            // 아니오: 프로그램 종료
+            System.out.println("게임 종료");
+            System.exit(0);
+        }
+    }
+
+
+
 }
