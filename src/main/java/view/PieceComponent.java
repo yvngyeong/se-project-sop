@@ -1,6 +1,7 @@
 package view;
 
 import com.example.demo.Piece;
+import listener.PieceClickListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,12 +11,23 @@ import java.awt.event.MouseEvent;
 public class PieceComponent extends JComponent {
     private final Piece piece;
     private static final int DIAMETER = 30;
+    private static final int PADDING = 4;   // 원이 GameView에서 잘려보여서 여유공간 용으로 추가
 
-    public PieceComponent(Piece piece) {
+    public PieceComponent(Piece piece, PieceClickListener listener) {
         this.piece = piece;
-        setPreferredSize(new Dimension(DIAMETER, DIAMETER));
-        setSize(DIAMETER, DIAMETER);
+        int size = DIAMETER + PADDING*2;
+        setPreferredSize(new Dimension(size, size));
+        setSize(size, size);
         setOpaque(false); // 배경 투명 처리
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (listener != null) {
+                    listener.onPieceClicked(piece);
+                }
+            }
+        });
     }
 
     @Override

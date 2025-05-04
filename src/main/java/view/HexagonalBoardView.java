@@ -1,8 +1,7 @@
 package view;
 
-import com.example.demo.Board;
-import com.example.demo.CornerNode;
-import com.example.demo.Node;
+import com.example.demo.*;
+import listener.PieceClickListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HexagonalBoardView extends JPanel {
+public class HexagonalBoardView extends BoardView {
 
     private final Board board;
     private final int radius = 250; // 외곽 육각형 반지름
@@ -22,6 +21,7 @@ public class HexagonalBoardView extends JPanel {
         this.board = board;
         setPreferredSize(new Dimension(600, 600));
         setBackground(Color.WHITE);
+        setLayout(null); // 자유 배치
     }
 
     @Override
@@ -148,6 +148,78 @@ public class HexagonalBoardView extends JPanel {
             int textWidth = fm.stringWidth(text);
             g2.drawString(text, p.x - textWidth / 2, p.y + nodeSize / 2 + 12);
             */
+        }
+    }
+
+    @Override
+    public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
+        // 모든 PieceComponent를 다시 위치시킴
+        // 1. 기존에 이 BoardView에 올라와 있던 PieceComponent 전부 제거
+        this.removeAll();
+
+        // 2. 노드 위치 계산 보장 (paintComponent가 호출되지 않았을 수 있으므로)
+        calculateNodePositions();
+
+        // 3. 각 플레이어의 말 컴포넌트 배치
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                if (piece.getPosition()==0 && !piece.isFinished()) continue; // 보드에 없는 말은 무시
+
+                Node node = board.getNodes().get(piece.getPosition());
+                if (node == null) continue;
+
+                Point nodePos = nodePositions.get(node.getNodeID());
+                if (nodePos == null) continue;
+
+                PieceComponent pieceComp = pieceComponentMap.get(piece);
+                if (pieceComp == null) continue;
+
+                Dimension size = pieceComp.getPreferredSize();
+                int pieceX = nodePos.x - size.width / 2;
+                int pieceY = nodePos.y - size.height / 2;
+
+                pieceComp.setLocation(pieceX, pieceY);
+
+                this.add(pieceComp); // 컴포넌트를 다시 boardView 위에 올림
+            }
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+
+    private void drawPieces(Graphics2D g2) {
+        for (Node node : board.getNodes()) {
+            Point pos = nodePositions.get(node.getNodeID());
+            if (pos == null) continue;
+
+            List<Piece> pieces = node.getOwnedPieces(); // 각 노드에 있는 말들
+            int count = 0;
+            for (Piece piece : pieces) {
+                Color color = getPlayerColor(piece.getOwnerId());
+                g2.setColor(color);
+
+                // 말들이 겹치지 않게 약간씩 오프셋
+                int offsetX = (count % 2) * 12 - 6;
+                int offsetY = (count / 2) * 12 - 6;
+
+                g2.fill(new Ellipse2D.Double(pos.x - 10 + offsetX, pos.y - 10 + offsetY, 20, 20));
+                g2.setColor(Color.BLACK);
+                g2.draw(new Ellipse2D.Double(pos.x - 10 + offsetX, pos.y - 10 + offsetY, 20, 20));
+
+                count++;
+            }
+        }
+    }
+
+    private Color getPlayerColor(int playerId) {
+        switch (playerId % 4) {
+            case 0: return Color.RED;
+            case 1: return Color.BLUE;
+            case 2: return Color.GREEN;
+            case 3: return Color.ORANGE;
+            default: return Color.GRAY;
         }
     }
 }
