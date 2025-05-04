@@ -1,7 +1,8 @@
 package viewTest;
 
 import com.example.demo.Piece;
-import view.PieceView;
+import listener.PieceClickListener;
+import view.PieceComponent;
 
 import javax.swing.*;
 
@@ -9,8 +10,9 @@ public class TestPieceView {
     public static void main(String[] args) {
 
         Piece testPiece = new Piece(1);
+        PieceClickListener testListener = null;
 
-        PieceView pieceView = new PieceView(testPiece);
+        PieceComponent pieceView = new PieceComponent(testPiece, testListener);
 
         pieceView.setBounds(50, 50, 30, 30);
 

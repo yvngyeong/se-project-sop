@@ -1,6 +1,7 @@
 package view;
 
 import com.example.demo.*;
+import listener.PieceClickListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TetragonalBoardView extends JPanel {
+public class TetragonalBoardView extends BoardView {
     private TetragonalBoard board;
     private Map<Integer, Point> nodePositions;
 
@@ -20,6 +21,7 @@ public class TetragonalBoardView extends JPanel {
         setBackground(Color.WHITE);
 
         setNodePositions();
+        setLayout(null);
     }
 
     private void setNodePositions() {
@@ -153,4 +155,42 @@ public class TetragonalBoardView extends JPanel {
             g2.drawLine(from.x, from.y, to.x, to.y);
         }
     }
+
+    @Override
+    public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
+        // 모든 PieceComponent를 다시 위치시킴
+        // 1. 기존에 이 BoardView에 올라와 있던 PieceComponent 전부 제거
+        this.removeAll();
+
+        // 2. 노드 위치 계산 보장 (paintComponent가 호출되지 않았을 수 있으므로)
+        setNodePositions();
+
+        // 3. 각 플레이어의 말 컴포넌트 배치
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                if (piece.getPosition()==0 && !piece.isFinished()) continue; // 보드에 없는 말은 무시
+
+                Node node = board.getNodes().get(piece.getPosition());
+                if (node == null) continue;
+
+                Point nodePos = nodePositions.get(node.getNodeID());
+                if (nodePos == null) continue;
+
+                PieceComponent pieceComp = pieceComponentMap.get(piece);
+                if (pieceComp == null) continue;
+
+                Dimension size = pieceComp.getPreferredSize();
+                int pieceX = nodePos.x - size.width / 2;
+                int pieceY = nodePos.y - size.height / 2;
+
+                pieceComp.setLocation(pieceX, pieceY);
+
+                this.add(pieceComp); // 컴포넌트를 다시 boardView 위에 올림
+            }
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
 }
