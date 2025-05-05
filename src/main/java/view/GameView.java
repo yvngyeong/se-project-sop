@@ -2,7 +2,9 @@ package view;
 
 import com.example.demo.*;
 import listener.PieceClickListener;
+import listener.SelectThrowListener;
 import listener.ThrowListener;
+import listener.SelectThrowListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class GameView extends JFrame {
     private BoardView boardPanel;
@@ -21,6 +24,12 @@ public class GameView extends JFrame {
     private Map<Piece, PieceComponent> pieceComponentMap = new HashMap<>(); // ⬅️ 말 컴포넌트 저장
     private PieceClickListener pieceClickListener;
     private ThrowListener throwListener;
+    private SelectThrowListener selectThrowListener;
+    private JLabel statusLabel;
+
+    private JPanel yutButtonPanel; // 윷 버튼 모음 패널
+
+
 
     public GameView(Game game) {
         setTitle("윷놀이 게임");
@@ -82,18 +91,12 @@ public class GameView extends JFrame {
         rightPanel.add(yutQueueLabel);
         rightPanel.add(Box.createVerticalStrut(20));
 
-        // 윷 던지기 버튼
-        throwButton = new JButton("윷 던지기");
-        throwButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setMaximumSize(new Dimension(250, 50));
-        throwButton.setPreferredSize(new Dimension(230, 50));
-        buttonPanel.add(throwButton);
+        // 상태 표시 라벨 (윷 던져주세요, 윷이나 모가 나오면 -> 윷을 한번 더 던져주세요, 말 이동 중)
+        statusLabel = new JLabel("윷을 던져주세요.");
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rightPanel.add(statusLabel);
+        rightPanel.add(Box.createVerticalStrut(10));
 
-        rightPanel.add(Box.createVerticalGlue()); // 아래로 밀기
-        rightPanel.add(buttonPanel);
-
-        initListeners(); // throwButton에 이벤트 처리 되도록
     }
 
     public void setPieceClickListener(PieceClickListener listener) {
@@ -102,6 +105,9 @@ public class GameView extends JFrame {
 
     public void setThrowListener(ThrowListener listener) {
         this.throwListener = listener;
+    }
+    public void setSelectThrowListener(SelectThrowListener listener){
+        this.selectThrowListener=listener;
     }
 
     private void initListeners() {
@@ -128,7 +134,14 @@ public class GameView extends JFrame {
     }
 
     public void updateYutQueue(List<Integer> yutResults) {
-        yutQueueLabel.setText("윷 결과: " + yutResults.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append("윷 결과: ");
+
+        for (int result : yutResults) {
+            sb.append(getYutName(result)).append(" ");
+        }
+
+        yutQueueLabel.setText(sb.toString().trim());
     }
 
     public void updateCurrentPlayer(int playerId) {
@@ -187,6 +200,88 @@ public class GameView extends JFrame {
             System.out.println("게임 종료");
             System.exit(0);
         }
+    }
+
+    public void setStatus(String text) {
+        statusLabel.setText(text);
+    }
+
+    // 필요할 때 호출
+    public void createYutButtons() {
+        yutButtonPanel = new JPanel();
+        yutButtonPanel.setLayout(new GridLayout(2, 3, 5, 5));
+        yutButtonPanel.setMaximumSize(new Dimension(250, 100));
+
+        String[] labels = {"빽도", "도", "개", "걸", "윷", "모"};
+        int[] values = {-1, 1, 2, 3, 4, 5};
+
+        for (int i = 0; i < labels.length; i++) {
+            JButton btn = new JButton(labels[i]);
+            int value = values[i];
+            btn.addActionListener(e -> {
+                if (selectThrowListener != null) {
+                    selectThrowListener.onThrowSelected(value);
+                }
+            });
+            yutButtonPanel.add(btn);
+        }
+
+        rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(yutButtonPanel);
+        rightPanel.revalidate();
+        rightPanel.repaint();
+    }
+
+    public void createRandomYutButtons(){
+        // 윷 던지기 버튼
+        throwButton = new JButton("윷 던지기");
+        throwButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setMaximumSize(new Dimension(250, 50));
+        throwButton.setPreferredSize(new Dimension(230, 50));
+        buttonPanel.add(throwButton);
+
+        throwButton.addActionListener(e -> {
+            if (throwListener != null) {
+                throwListener.onThrow();
+            }
+        });
+
+        rightPanel.add(Box.createVerticalGlue()); // 아래로 밀기
+        rightPanel.add(buttonPanel);
+    }
+    private String getYutName(int result) {
+        return switch (result) {
+            case -1 -> "빽도";
+            case 1 -> "도";
+            case 2 -> "개";
+            case 3 -> "걸";
+            case 4 -> "윷";
+            case 5 -> "모";
+            default -> "알수없음";
+        };
+    }
+    public void showYutResultButtons(List<Integer> yutQueue, SelectThrowListener listener) {
+        if (yutButtonPanel != null) {
+            rightPanel.remove(yutButtonPanel);
+        }
+
+        yutButtonPanel = new JPanel(new FlowLayout());
+        yutButtonPanel.setMaximumSize(new Dimension(250, 50));
+
+        for (Integer yut : yutQueue) {
+            JButton btn = new JButton(getYutName(yut));
+            btn.addActionListener(e -> {
+                if (listener != null) {
+                    listener.onThrowSelected(yut);
+                }
+            });
+            yutButtonPanel.add(btn);
+        }
+
+        rightPanel.add(yutButtonPanel);
+        rightPanel.revalidate();
+        rightPanel.repaint();
     }
 
 
