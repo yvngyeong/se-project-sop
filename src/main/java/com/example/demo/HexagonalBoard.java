@@ -110,20 +110,6 @@ public class HexagonalBoard extends Board {
         for (int i = 0; i < yutValue; i++) {
             List<Integer> nextPosition = edges.get(position);
 
-            if (nextPosition == null || nextPosition.isEmpty()) {
-                // 시작점(0)에 도달했지만 그것이 처음 도착이면 종료 아님
-                // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
-                System.out.println("승리");
-                if (myPiece.getGroupId() == 1) {
-                    for (Piece grouped : myPiece.getGroupedPieces()) {
-                        grouped.finish();
-                    }
-                }
-                myPiece.finish();
-                position = 43; // 명시적으로 승리 위치 지정
-                break;
-            }
-
             myPiece.pushPreviousPosition(position);
             position = nextPosition.get(0);
 
@@ -168,6 +154,18 @@ public class HexagonalBoard extends Board {
                     nodes.get(position).add(grouped);
                 }
             }
+        }
+
+        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty())
+        {
+            System.out.println("승리 (위치 " + position + ")");
+            if (myPiece.getGroupId() == 1) {
+                for (Piece grouped : myPiece.getGroupedPieces()) {
+                    grouped.finish();
+                }
+            }
+            myPiece.finish();
+
         }
 
     }
