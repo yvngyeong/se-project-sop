@@ -189,22 +189,39 @@ public class PentagonalBoardView extends BoardView {
             Point nodePos = nodePositions.get(nodeId);
             if (nodePos == null) continue;
 
-            JComponent comp;
             if (piecesAtSamePos.size() == 1) {
                 Piece piece = piecesAtSamePos.get(0);
-                comp = pieceComponentMap.get(piece);
+                PieceComponent comp = pieceComponentMap.get(piece);
+                comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+                this.add(comp);
             } else {
-                comp = new GroupedPieceComponent(piecesAtSamePos);
-            }
+                // 핵심: pieceComponentMap의 key와 동일한 인스턴스를 사용한 리스트 만들기
+                List<Piece> normalizedPieces = new ArrayList<>();
+                for (Piece p : piecesAtSamePos) {
+                    for (Piece key : pieceComponentMap.keySet()) {
+                        if (key == p) { // 인스턴스 동일성 비교
+                            normalizedPieces.add(key);
+                            break;
+                        }
+                    }
+                }
 
-            comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-            comp.setOpaque(false);
-            this.add(comp);
+                // 대표 piece에서 리스너 추출
+                Piece referencePiece = normalizedPieces.get(0);
+                PieceComponent refComp = pieceComponentMap.get(referencePiece);
+                PieceClickListener listener = refComp.getListener();
+
+                GroupedPieceComponent groupComp = new GroupedPieceComponent(normalizedPieces);
+                groupComp.setClickListener(listener);
+                groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+                this.add(groupComp);
+            }
         }
 
         this.revalidate();
         this.repaint();
-        this.paintImmediately(0, 0, getWidth(), getHeight());
+
     }
 
 }
+

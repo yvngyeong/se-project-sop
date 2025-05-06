@@ -37,4 +37,10 @@ public abstract class Node {
     {
         ownedPieces.add(piece);
     }
+
+    public void clearPieces()  //게임 재시작할때 초기화
+    {
+        ownedPieces.clear();
+    }
+
 }

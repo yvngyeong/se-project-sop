@@ -48,13 +48,17 @@ public class HexagonalBoard extends Board {
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
+
+        isCatched=false;
+        isBackdo = false;
+        int position = myPiece.getPosition();
+
         // 빽도
         if (yutValue == -1) {
             if (myPiece.isFinished())
                 return;
 
             int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
-            int position = myPiece.getPosition();
             nodes.get(position).remove(myPiece);
 
             if (prev != -1) // 뒤로 갈 수 있을 때
@@ -67,9 +71,12 @@ public class HexagonalBoard extends Board {
             }
             myPiece.setPosition(position);
             nodes.get(position).add(myPiece);
-            return;
+            isBackdo = true;
+
         }
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
+
+        if(!isBackdo){
         if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
             myPiece.setPosition(1); // 0 → 1
             myPiece.pushPreviousPosition(0);
@@ -78,7 +85,7 @@ public class HexagonalBoard extends Board {
         if (myPiece.isFinished())
             return;
 
-        int position = myPiece.getPosition();
+        position = myPiece.getPosition();
         Node currentNode = nodes.get(position);
         currentNode.remove(myPiece);
 
@@ -107,6 +114,11 @@ public class HexagonalBoard extends Board {
                 // 시작점(0)에 도달했지만 그것이 처음 도착이면 종료 아님
                 // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
                 System.out.println("승리");
+                if (myPiece.getGroupId() == 1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        grouped.finish();
+                    }
+                }
                 myPiece.finish();
                 position = 43; // 명시적으로 승리 위치 지정
                 break;
@@ -115,20 +127,30 @@ public class HexagonalBoard extends Board {
             myPiece.pushPreviousPosition(position);
             position = nextPosition.get(0);
 
-        }
+        }}
 
         // 잡기
         Node nextNode = nodes.get(position);
         List<Piece> pieces = new ArrayList<>(nextNode.getOwnedPieces());
 
         for (int i = 0; i < pieces.size(); i++) {
+
             Piece opponentPiece = pieces.get(i);
-            if (opponentPiece.getOwnerId() != myPiece.getOwnerId()) {
+
+            if (opponentPiece.isFinished()) continue;
+
+            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId())&& opponentPiece.getPosition() !=0 ) {
                 nextNode.remove(pieces.get(i));
                 opponentPiece.setPosition(0);
-                nodes.get(0).add(opponentPiece);
 
-            } else if (opponentPiece.getOwnerId() == myPiece.getOwnerId()) // 같은 플레이어 말일때 -> 그룹핑
+                opponentPiece.clearPreviousPositions(); // Stack 비우기
+                opponentPiece.clearGroup();             // 그룹 리스트 비우기
+
+
+                nodes.get(0).add(opponentPiece);
+                isCatched=true;
+
+            } else if ((opponentPiece.getOwnerId() == myPiece.getOwnerId() )&& myPiece.getPosition() != 0) // 같은 플레이어 말일때 -> 그룹핑
             {
                 myPiece.grouping(opponentPiece);
 
@@ -141,12 +163,16 @@ public class HexagonalBoard extends Board {
         if (myPiece.getGroupId() == 1) {
             for (Piece grouped : myPiece.getGroupedPieces()) {
                 if (grouped != myPiece) {
+                    nodes.get(grouped.getPosition()).remove(grouped);
                     grouped.setPosition(position);
                     nodes.get(position).add(grouped);
                 }
             }
         }
 
+    }
+    public boolean isCatched() {
+        return isCatched;
     }
 
 }

@@ -1,11 +1,9 @@
 package controller;
 
-import com.example.demo.Game;
-import com.example.demo.Piece;
-import com.example.demo.Player;
-import com.example.demo.TestYut;
+import com.example.demo.*;
 import view.GameView;
 import listener.PieceClickListener;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +22,8 @@ public class GameController {
         this.game = game;
         this.gameView = gameView;
         System.out.println("GameView 생성 완료");
+        gameView.setRestartCallback(this::restart);
+
 
         gameView.setPieceClickListener(new PieceClickListener() {
             @Override
@@ -46,40 +46,15 @@ public class GameController {
                 gameView.showYutResult(realResult);
                 gameView.updateYutQueue(yutQueue);
 
+
                 if (realResult == 4 || realResult == 5) {
                     gameView.setStatus("윷/모! 한 번 더 던지세요.");
                 } else {
                     isThrowing = false;
-                    gameView.setStatus("윷 결과를 선택하세요.");
-                    gameView.showYutResultButtons(yutQueue, yut -> {
-                        if (selectedPiece == null) {
-                            gameView.setStatus("이동할 말을 선택하세요.");
-                            return;
-                        }
-
-                        // 말 이동
-                        game.getBoard().movePosition(selectedPiece, yut);
-                        yutQueue.remove(Integer.valueOf(yut));
-                        selectedPiece = null;
-
-                        gameView.updateBoardPieces(game.getPlayers());
-                        gameView.updateUnusedPieces(game.getPlayers());
-                        gameView.updateYutQueue(yutQueue);
-
-                        Player currentPlayer = getCurrentPlayer();
-                        if (currentPlayer.checkWin()) {
-                            gameView.showGameOverDialog(currentPlayer.getId());
-                            return;
-                        }
-
-                        if (!yutQueue.isEmpty()) {
-                            gameView.setStatus("이동할 말을 선택하세요.");
-                        } else {
-                            nextTurn();
-                        }
-                    });
+                    gameView.setStatus("이동할 말을 선택하세요.");
 
                 }
+
             });
         } else {
             gameView.createRandomYutButtons();
@@ -92,39 +67,12 @@ public class GameController {
                 gameView.showYutResult(result);
                 gameView.updateYutQueue(yutQueue);
 
+
                 if (result == 4 || result == 5) {
                     gameView.setStatus("윷/모! 한 번 더 던지세요.");
                 } else {
                     isThrowing = false;
-                    gameView.setStatus("윷 결과를 선택하세요.");
-                    gameView.showYutResultButtons(yutQueue, yut -> {
-                        if (selectedPiece == null) {
-                            gameView.setStatus("이동할 말을 선택하세요.");
-                            return;
-                        }
-
-                        // 말 이동
-                        game.getBoard().movePosition(selectedPiece, yut);
-                        yutQueue.remove(Integer.valueOf(yut));
-                        selectedPiece = null;
-
-                        gameView.updateBoardPieces(game.getPlayers());
-                        gameView.updateUnusedPieces(game.getPlayers());
-                        gameView.updateYutQueue(yutQueue);
-
-                        Player currentPlayer = getCurrentPlayer();
-                        if (currentPlayer.checkWin()) {
-                            gameView.showGameOverDialog(currentPlayer.getId());
-                            return;
-                        }
-
-                        if (!yutQueue.isEmpty()) {
-                            gameView.setStatus("이동할 말을 선택하세요.");
-                        } else {
-                            nextTurn();
-                        }
-                    });
-
+                    gameView.setStatus("이동할 말을 선택하세요.");
 
                 }
             });
@@ -138,17 +86,66 @@ public class GameController {
     }
     private void nextTurn() {
 
+        currentPlayerIndex = (currentPlayerIndex + 1) % game.getPlayers().size();
+        isThrowing = true;
+        selectedPiece = null;
+
+        gameView.updateCurrentPlayer(getCurrentPlayer().getId());
+        gameView.setStatus("윷을 던져주세요.");
     }
 
     // Piece 클릭 시 처리할 로직
     public void selectPiece(Piece piece) {
-        // 여기서 게임 모델에 piece 움직이는 로직 넣으면 됨
-        // 예: game.getBoard.movePosition(piece, yutValue);
-        gameView.updateBoardPieces(game.getPlayers()); //움직인 말 반영
-        gameView.updateUnusedPieces(game.getPlayers()); //남은 말 반영
+
+
+        if (isThrowing) {
+            gameView.setStatus("먼저 윷을 던지세요.");
+            return;
+        }
         selectedPiece = piece;
-        gameView.setStatus("먼저 윷을 던지세요.");
+
+        if (!yutQueue.isEmpty()) {
+            int yut = yutQueue.remove(0);
+            game.getBoard().movePosition(selectedPiece, yut);
+            boolean catched = game.getBoard().isCatched();
+
+            gameView.updateBoardPieces(game.getPlayers());
+            gameView.updateUnusedPieces(game.getPlayers());
+            gameView.updateYutQueue(yutQueue);
+
+            Player currentPlayer = getCurrentPlayer();
+            if (currentPlayer.checkWin())
+            {
+                gameView.showGameOverDialog(currentPlayer.getId());
+                return;
+            }
+
+            if (catched) {
+                gameView.setStatus("상대 말을 잡았습니다! 한 번 더 던지세요.");
+                isThrowing = true;
+                selectedPiece = null;
+                return;
+            }
+
+            if (!yutQueue.isEmpty()) {
+                gameView.setStatus("이동할 말을 선택하세요.");
+            } else {
+                selectedPiece = null;
+                nextTurn();
+            }
+        } else {
+            gameView.setStatus("적용할 윷 결과가 없습니다.");
+        }
 
     }
 
+    //게임 다시 시작하는 함수
+    public void restart() {
+        gameView.dispose(); // 현재 게임 창 닫기
+        new ServiceController(); // 처음부터 다시 시작
+    }
+
+
+
 }
+
