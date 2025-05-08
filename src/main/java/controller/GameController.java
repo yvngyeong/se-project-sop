@@ -43,36 +43,8 @@ public class GameController {
 
                 ((TestYut) game.getYut()).setNext(result);
                 int realResult = game.getYut().getResult();
+                processYutResult(realResult);
 
-                yutQueue.add(realResult);
-                gameView.showYutResult(realResult);
-                gameView.updateYutQueue(yutQueue);
-
-                if (realResult == 4 || realResult == 5) {
-                    gameView.setStatus("윷/모! 한 번 더 던지세요.");
-                    return;
-                }
-
-                isThrowing = false;
-
-                if (!yutQueue.isEmpty()) {
-                    if (yutQueue.size() == 1) {
-                        // 자동 선택
-                        selectedYut = yutQueue.get(0);
-                        gameView.setStatus(gameView.getYutName(selectedYut) + "이 남았습니다. 말을 선택하세요.");
-                    } else {
-                        // 두 개 이상일 때만 버튼 보여줌
-                        selectedYut = null;
-                        gameView.setStatus("적용할 윷 결과를 선택해주세요.");
-                        gameView.showYutResultButtons(yutQueue, selected -> {
-                            selectedYut = selected;
-                            gameView.setStatus(gameView.getYutName(selected) + "을 선택했습니다. 말을 클릭하세요.");
-                        });
-                    }
-                } else {
-                    selectedPiece = null;
-                    nextTurn(); // 턴 넘김
-                }
 
             });
         } else {
@@ -82,39 +54,43 @@ public class GameController {
                 if (!isThrowing) return;
 
                 int result = game.getYut().getResult();
-                yutQueue.add(result);
-                gameView.showYutResult(result);
-                gameView.updateYutQueue(yutQueue);
+                processYutResult(result);
 
-                if (result == 4 || result == 5) {
-                    gameView.setStatus("윷/모! 한 번 더 던지세요.");
-                    return; // ✅ 여기서 끝냄
-                }
 
-                isThrowing = false;
-
-                if (!yutQueue.isEmpty()) {
-                    if (yutQueue.size() == 1) {
-                        // 자동 선택
-                        selectedYut = yutQueue.get(0);
-                        gameView.setStatus(gameView.getYutName(selectedYut) + "이 남았습니다. 말을 선택하세요.");
-                    } else {
-                        // 두 개 이상일 때만 버튼 보여줌
-                        selectedYut = null;
-                        gameView.setStatus("적용할 윷 결과를 선택해주세요.");
-                        gameView.showYutResultButtons(yutQueue, selected -> {
-                            selectedYut = selected;
-                            gameView.setStatus(gameView.getYutName(selected) + "을 선택했습니다. 말을 클릭하세요.");
-                        });
-                    }
-                } else {
-                    selectedPiece = null;
-                    nextTurn(); // 턴 넘김
-                }
             });
         }
 
 
+    }
+    private void processYutResult(int result){
+        yutQueue.add(result);
+        gameView.showYutResult(result);
+        gameView.updateYutQueue(yutQueue);
+        if (result == 4 || result == 5) {
+            gameView.setStatus("윷/모! 한 번 더 던지세요.");
+            return; //
+        }
+
+        isThrowing = false;
+
+        if (!yutQueue.isEmpty()) {
+            if (yutQueue.size() == 1) {
+                // 자동 선택
+                selectedYut = yutQueue.get(0);
+                gameView.setStatus(gameView.getYutName(selectedYut) + "이 나왔습니다. 말을 선택하세요.");
+            } else {
+                // 두 개 이상일 때만 버튼 보여줌
+                selectedYut = null;
+                gameView.setStatus("적용할 윷 결과를 선택해주세요.");
+                gameView.showYutResultButtons(yutQueue, selected -> {
+                    selectedYut = selected;
+                    gameView.setStatus(gameView.getYutName(selected) + "을 선택했습니다. 말을 클릭하세요.");
+                });
+            }
+        } else {
+            selectedPiece = null;
+            nextTurn(); // 턴 넘김
+        }
     }
     private Player getCurrentPlayer() {
         return game.getPlayers().get(currentPlayerIndex);
@@ -175,6 +151,8 @@ public class GameController {
                 gameView.setStatus("상대 말을 잡았습니다! 한 번 더 던지세요.");
                 isThrowing = true;
                 selectedPiece = null;
+                // 윷 던지기 버튼 다시 활성화
+                gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);
                 return;
             }
 
