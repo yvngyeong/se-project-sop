@@ -29,6 +29,13 @@ public class GameView extends JFrame {
 
     private JPanel yutButtonPanel; // 윷 버튼 모음 패널
 
+    private Runnable restartCallback;
+
+    public void setRestartCallback(Runnable restartCallback) {
+        this.restartCallback = restartCallback;
+    }
+
+
 
 
     public GameView(Game game) {
@@ -101,6 +108,17 @@ public class GameView extends JFrame {
 
     public void setPieceClickListener(PieceClickListener listener) {
         this.pieceClickListener = listener;
+        for (PieceComponent comp : pieceComponentMap.values()) {
+            comp.setClickListener(listener);
+        }
+
+        for (Component c : boardPanel.getComponents()) {
+            if (c instanceof GroupedPieceComponent gpc) {
+                gpc.setClickListener(listener);
+            }
+        }
+
+
     }
 
     public void setThrowListener(ThrowListener listener) {
@@ -194,7 +212,10 @@ public class GameView extends JFrame {
         if (result == JOptionPane.YES_OPTION) {
             // 예: 게임 재시작 (여기선 프로그램 재시작 처리로 대체)
             System.out.println("게임 재시작");
-            System.exit(0); // TODO: 실제로는 게임 초기화 로직으로 교체해야 함
+            if (restartCallback != null)
+            {
+                restartCallback.run(); // 여기서 GameController.restart() 실행됨
+            }
         } else {
             // 아니오: 프로그램 종료
             System.out.println("게임 종료");

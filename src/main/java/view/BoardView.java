@@ -59,26 +59,38 @@ public abstract class BoardView extends JPanel {
 
         // 2. 위치별로 처리
         for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
+            int nodeId = entry.getKey();
             List<Piece> piecesAtSamePos = entry.getValue();
 
-            JComponent comp;
+            Point nodePos = nodePositions.get(nodeId);
+            if (nodePos == null) continue;
+
             if (piecesAtSamePos.size() == 1) {
                 Piece piece = piecesAtSamePos.get(0);
-                comp = pieceComponentMap.get(piece);
-            } else {
-                // 그룹 컴포넌트로 교체
-                comp = new GroupedPieceComponent(piecesAtSamePos);
-
-                // 좌표는 첫 번째 말 기준
-                Piece referencePiece = piecesAtSamePos.get(0);
-                PieceComponent refComp = pieceComponentMap.get(referencePiece);
-                Rectangle bounds = refComp.getBounds(); // 기존 좌표 얻기
-                comp.setBounds(bounds);
-            }
-
-            // 단독 말은 기존 좌표 유지, 그룹은 첫 말 좌표 복사
-            if (comp.getParent() != this) {
+                PieceComponent comp = pieceComponentMap.get(piece);
+                comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
                 this.add(comp);
+            } else {
+                // 핵심: pieceComponentMap의 key와 동일한 인스턴스를 사용한 리스트 만들기
+                List<Piece> normalizedPieces = new ArrayList<>();
+                for (Piece p : piecesAtSamePos) {
+                    for (Piece key : pieceComponentMap.keySet()) {
+                        if (key == p) { // 인스턴스 동일성 비교
+                            normalizedPieces.add(key);
+                            break;
+                        }
+                    }
+                }
+
+                // 대표 piece에서 리스너 추출
+                Piece referencePiece = normalizedPieces.get(0);
+                PieceComponent refComp = pieceComponentMap.get(referencePiece);
+                PieceClickListener listener = refComp.getListener();
+
+                GroupedPieceComponent groupComp = new GroupedPieceComponent(normalizedPieces);
+                groupComp.setClickListener(listener);
+                groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+                this.add(groupComp);
             }
         }
 
@@ -87,3 +99,4 @@ public abstract class BoardView extends JPanel {
     }
 
 }
+

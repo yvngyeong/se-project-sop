@@ -7,11 +7,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class PieceComponent extends JComponent {
     private final Piece piece;
     private static final int DIAMETER = 30;
     private static final int PADDING = 4;   // 원이 GameView에서 잘려보여서 여유공간 용으로 추가
+    private PieceClickListener listener;
 
     public PieceComponent(Piece piece, PieceClickListener listener) {
         this.piece = piece;
@@ -20,14 +22,6 @@ public class PieceComponent extends JComponent {
         setSize(size, size);
         setOpaque(false); // 배경 투명 처리
 
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (listener != null) {
-                    listener.onPieceClicked(piece);
-                }
-            }
-        });
     }
 
     @Override
@@ -64,7 +58,27 @@ public class PieceComponent extends JComponent {
         g2.drawString(text, (DIAMETER - textWidth) / 2, (DIAMETER + textHeight / 2) / 2);
     }
 
+    public void setClickListener(PieceClickListener listener) {
+        this.listener = listener;
+        for (MouseListener ml : getMouseListeners()) {
+            removeMouseListener(ml);
+        }
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (listener != null) {
+                    listener.onPieceClicked(piece);
+                }
+            }
+        });
+    }
+
+    public PieceClickListener getListener() {
+        return listener;
+    }
+
     private void mouseClicked(){
 
     }
 }
+

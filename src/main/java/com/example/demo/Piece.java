@@ -35,8 +35,13 @@ public class Piece {
     }
 
     public void finish() {
+
         this.isFinished = true;
+        this.clearPreviousPositions();    // 이동 경로 제거
+        this.clearGroup();
     }
+
+    public void unfinish() {this.isFinished = false;}
 
     public int getOwnerId() {
         return ownerId;
@@ -74,4 +79,19 @@ public class Piece {
         }
         return -1;
     }
+
+    public void clearPreviousPositions() {
+        posStack.clear();
+    }
+
+    public void clearGroup() {
+        groupPieces.clear();
+        groupId = 0;
+    }
+
+
+
+
+
+
 }
