@@ -320,6 +320,12 @@ public class GameView extends JFrame {
         rightPanel.repaint();
     }
 
-
-
+    public void hideYutResultButtons() {
+        if (yutButtonPanel != null) {
+            rightPanel.remove(yutButtonPanel);
+            yutButtonPanel = null;
+            rightPanel.revalidate();
+            rightPanel.repaint();
+        }
+    }
 }

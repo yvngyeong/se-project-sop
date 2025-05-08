@@ -22,6 +22,14 @@ public class PieceComponent extends JComponent {
         setSize(size, size);
         setOpaque(false); // 배경 투명 처리
 
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (listener != null) {
+                    listener.onPieceClicked(piece);
+                }
+            }
+        });
     }
 
     @Override

@@ -17,6 +17,7 @@ public class GameController {
     private Piece selectedPiece = null;
 
     private Integer selectedYut=null;  //사용자가 선택한 윷 결과
+    private boolean randomYutButtonCreated = false;
 
 
     public GameController(Game game, GameView gameView) {
@@ -48,8 +49,10 @@ public class GameController {
 
             });
         } else {
-            gameView.createRandomYutButtons();
-            // 랜덤 윷: 기존처럼 버튼 한 개
+            if (!randomYutButtonCreated) {
+                gameView.createRandomYutButtons();
+                randomYutButtonCreated = true;
+            }
             gameView.setThrowListener(() -> {
                 if (!isThrowing) return;
 
@@ -59,7 +62,7 @@ public class GameController {
 
             });
         }
-
+        //gameView.setStatus("윷을 던지세요.");
 
     }
     private void processYutResult(int result){
@@ -103,7 +106,10 @@ public class GameController {
 
         gameView.updateCurrentPlayer(getCurrentPlayer().getId());
         gameView.setStatus("윷을 던져주세요.");
-        gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);  //윷 던지기 버튼 다시 호출
+        //gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);  //윷 던지기 버튼 다시 호출
+        if (game.getYut() instanceof TestYut) {
+            gameView.showThrowButtonAgain(true);
+        }
     }
 
     // Piece 클릭 시 처리할 로직
@@ -134,6 +140,9 @@ public class GameController {
             boolean catched = game.getBoard().isCatched();
 
             yutQueue.remove(selectedYut);
+            if (yutQueue.isEmpty()) {
+                gameView.hideYutResultButtons();
+            }
             selectedYut = null;
 
             gameView.updateBoardPieces(game.getPlayers());
@@ -152,7 +161,9 @@ public class GameController {
                 isThrowing = true;
                 selectedPiece = null;
                 // 윷 던지기 버튼 다시 활성화
-                gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);
+                if (game.getYut() instanceof TestYut) {
+                    gameView.showThrowButtonAgain(true);
+                }
                 return;
             }
 
