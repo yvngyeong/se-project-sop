@@ -51,6 +51,10 @@ public class PentagonalBoardView extends BoardView {
             }
         }
         // 추가 edge들
+        drawEdge(g2, 5, 26);
+        drawEdge(g2, 10, 28);
+        drawEdge(g2, 15, 31);
+        drawEdge(g2, 25,34);
         drawEdge(g2, 0, 1);
         drawEdge(g2, 5, 6);
         drawEdge(g2, 10, 11);

@@ -29,19 +29,13 @@ public class PentagonalBoard extends Board {
             edges.put(i, List.of(i + 1));
         }
 
-        edges.put(5, List.of(27));
-        edges.put(10,List.of(29));
-        edges.put(15,List.of(31));
 
-        edges.put(27, List.of(26));
-        edges.put(26, List.of(25));
-        edges.put(28, List.of(25));
-        edges.put(29, List.of(28));
+        edges.put(27, List.of(25));
+        edges.put(29, List.of(25));
 
         edges.put(31, List.of(30));
         edges.put(30, List.of(25));
 
-        edges.put(25, List.of(34));
         edges.put(33, List.of(20));
 
         edges.put(24,List.of(0));
@@ -81,50 +75,67 @@ public class PentagonalBoard extends Board {
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
 
         if(!isBackdo){
-        if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1) ) {
-            myPiece.setPosition(1); // 0 → 1
-            myPiece.pushPreviousPosition(0);
-            yutValue--; // 이미 1칸 이동했으므로 감소
-        }
+            if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1) ) {
+                myPiece.setPosition(1); // 0 → 1
+                myPiece.pushPreviousPosition(0);
+                yutValue--; // 이미 1칸 이동했으므로 감소
+            }
 
-        if (myPiece.isFinished())
-            return;
+            if (myPiece.isFinished())
+                return;
 
-        position = myPiece.getPosition();
-        Node currentNode = nodes.get(position);
-        currentNode.remove(myPiece);
-
-
-        if (position == 25) // 시작 위치가 25일때(25에서 딱 멈췄을때)
-        {
-            myPiece.pushPreviousPosition(position);
-            position = 34;
-            yutValue--;
-        } else if (position == 5) // 시작 위치가 25일때(25에서 딱 멈췄을때)
-        {
-            myPiece.pushPreviousPosition(position);
-            position = 27;
-            yutValue--;
-        } else if (position == 10) // 시작 위치가 25일때(25에서 딱 멈췄을때)
-        {
-            myPiece.pushPreviousPosition(position);
-            position = 29;
-            yutValue--;
-        } else if (position == 15) // 시작 위치가 25일때(25에서 딱 멈췄을때)
-        {
-            myPiece.pushPreviousPosition(position);
-            position = 31;
-            yutValue--;
-        }
-
-        for (int i = 0; i < yutValue; i++) {
-            List<Integer> nextPosition = edges.get(position);
-
-            myPiece.pushPreviousPosition(position);
-            position = nextPosition.get(0);
+            position = myPiece.getPosition();
+            Node currentNode = nodes.get(position);
+            currentNode.remove(myPiece);
 
 
-        }}
+            if (position == 25) // 시작 위치가 25일때(25에서 딱 멈췄을때)
+            {
+                myPiece.pushPreviousPosition(position);
+                position = 34;
+                yutValue--;
+            } else if (position == 5) // 시작 위치가 25일때(25에서 딱 멈췄을때)
+            {
+                myPiece.pushPreviousPosition(position);
+                position = 26;
+                yutValue--;
+            } else if (position == 10) // 시작 위치가 25일때(25에서 딱 멈췄을때)
+            {
+                myPiece.pushPreviousPosition(position);
+                position = 28;
+                yutValue--;
+            } else if (position == 15) // 시작 위치가 25일때(25에서 딱 멈췄을때)
+            {
+                myPiece.pushPreviousPosition(position);
+                position = 31;
+                yutValue--;
+            }
+
+            for (int i = 0; i < yutValue; i++) {
+                List<Integer> nextPosition = edges.get(position);
+
+                if (nextPosition == null || nextPosition.isEmpty()) {
+                    // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
+                    System.out.println("승리");
+                    if (myPiece.getGroupId() == 1) {
+                        for (Piece grouped : myPiece.getGroupedPieces()) {
+                            grouped.finish();
+                        }
+                    }
+                    myPiece.finish();
+                    position = 36; // 명시적으로 승리 위치 지정
+                    break;
+                }
+
+                myPiece.pushPreviousPosition(position);
+                position = nextPosition.get(0);
+
+                if (position == 36) {
+                    System.out.println("승리");
+                    myPiece.finish();
+                    break;
+                }
+            }}
 
         // 잡기
         Node nextNode = nodes.get(position);
@@ -165,18 +176,6 @@ public class PentagonalBoard extends Board {
                     nodes.get(position).add(grouped);
                 }
             }
-        }
-
-        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty()) {
-            // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
-            System.out.println("승리");
-            if (myPiece.getGroupId() == 1) {
-                for (Piece grouped : myPiece.getGroupedPieces()) {
-                    grouped.finish();
-                }
-            }
-            myPiece.finish();
-            
         }
 
     }

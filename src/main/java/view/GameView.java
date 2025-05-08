@@ -271,7 +271,7 @@ public class GameView extends JFrame {
         rightPanel.add(Box.createVerticalGlue()); // 아래로 밀기
         rightPanel.add(buttonPanel);
     }
-    private String getYutName(int result) {
+    public String getYutName(int result) {
         return switch (result) {
             case -1 -> "빽도";
             case 1 -> "도";
@@ -301,6 +301,21 @@ public class GameView extends JFrame {
         }
 
         rightPanel.add(yutButtonPanel);
+        rightPanel.revalidate();
+        rightPanel.repaint();
+    }
+    public void showThrowButtonAgain(boolean isTestYut) {
+        if (yutButtonPanel != null) {
+            rightPanel.remove(yutButtonPanel);
+            yutButtonPanel = null;
+        }
+
+        if (isTestYut) {
+            createYutButtons(); // 지정 윷
+        } else {
+            createRandomYutButtons(); // 랜덤 윷
+        }
+
         rightPanel.revalidate();
         rightPanel.repaint();
     }
