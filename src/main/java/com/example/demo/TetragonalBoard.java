@@ -49,8 +49,8 @@ public class TetragonalBoard extends Board {
         edges.put(28,List.of(0));
         edges.put(19,List.of(0));
 
-        // 0 → 다음 노드 없음 → 이동 불가 → 승리 조건 발생
-        edges.put(0, List.of(29)); // 또는 edges.remove(0)
+        // 0 → 다음은 승리조건으로 이동
+        edges.put(0, List.of(29));
         edges.put(29, List.of()); // 29 이후는 없음 → 완주 처리
 
     }

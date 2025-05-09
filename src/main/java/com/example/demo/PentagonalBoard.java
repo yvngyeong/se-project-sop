@@ -43,7 +43,9 @@ public class PentagonalBoard extends Board {
 
         edges.put(24,List.of(0));
         edges.put(35, List.of(0));
-        edges.put(0,List.of());
+
+        edges.put(0,List.of(36));
+        edges.put(36,List.of());  //36 -> 완주 처리
 
     }
 
@@ -79,6 +81,7 @@ public class PentagonalBoard extends Board {
 
         if(!isBackdo){
             if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1) ) {
+                nodes.get(0).remove(myPiece);
                 myPiece.setPosition(1); // 0 → 1
                 myPiece.pushPreviousPosition(0);
                 yutValue--; // 이미 1칸 이동했으므로 감소
@@ -116,24 +119,12 @@ public class PentagonalBoard extends Board {
 
             for (int i = 0; i < yutValue; i++) {
                 List<Integer> nextPosition = edges.get(position);
-                if ((nextPosition == null || nextPosition.isEmpty())) {
-                    if (position == 0) {
-                        // 0번은 그냥 도달만 함
-                        break;
-                    }
-
-                    // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
-                    System.out.println("승리");
-                    if (myPiece.getGroupId() == 1) {
-                        for (Piece grouped : myPiece.getGroupedPieces()) {
-                            grouped.finish();
-                        }
-                    }
+                if (nextPosition == null || nextPosition.isEmpty()) {
+                    System.out.println("경로 없음 → 완주 처리");
                     myPiece.finish();
-                    position = 36; // 명시적으로 승리 위치 지정
                     break;
                 }
-                myPiece.pushPreviousPosition(position);
+
                 // 🎯 25로 가려는 순간 & 이전이 15,30,31인 경우 → 강제로 34로 분기
                 if (nextPosition.size() == 1 && nextPosition.get(0) == 25) {
                     int prev = myPiece.getPreviousPosition(); // peek
@@ -155,11 +146,24 @@ public class PentagonalBoard extends Board {
                 } else {
                     position = nextPosition.get(0);
                 }
+                int next = nextPosition.get(0);
 
-                if (position == 36) {
-                    System.out.println("승리");
-                    myPiece.finish();
-                    break;
+                myPiece.pushPreviousPosition(position);
+                position = next;
+                System.out.println("이동 후 말 위치: " + position);
+
+                if (position == 0) {
+                    if (i == yutValue - 1) {
+                        // 0번에서 정확히 멈춤
+                        myPiece.setJustArrived(true);
+                        System.out.println("0번 도착 → justArrived true");
+                    } else {
+                        // 0번 지나침 → 완주
+                        System.out.println("0번 도착했지만 이동 남음 → 완주");
+                        myPiece.setJustArrived(false);
+                        myPiece.finish();
+                        break;
+                    }
                 }
             }}
 
