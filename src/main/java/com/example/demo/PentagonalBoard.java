@@ -30,8 +30,11 @@ public class PentagonalBoard extends Board {
         }
         edges.put(25,List.of(32));
 
-        edges.put(27, List.of(25));
-        edges.put(29, List.of(25));
+
+        edges.put(27, List.of(26));
+        edges.put(26, List.of(25));
+        edges.put(29, List.of(28));
+        edges.put(28, List.of(25));
 
         edges.put(31, List.of(30));
         edges.put(30, List.of(25));
@@ -97,12 +100,12 @@ public class PentagonalBoard extends Board {
             } else if (position == 5) // 시작 위치가 25일때(25에서 딱 멈췄을때)
             {
                 myPiece.pushPreviousPosition(position);
-                position = 26;
+                position = 27;
                 yutValue--;
             } else if (position == 10) // 시작 위치가 25일때(25에서 딱 멈췄을때)
             {
                 myPiece.pushPreviousPosition(position);
-                position = 28;
+                position = 29;
                 yutValue--;
             } else if (position == 15) // 시작 위치가 25일때(25에서 딱 멈췄을때)
             {
