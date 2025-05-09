@@ -63,6 +63,7 @@ public class GameController {
             });
         }
         //gameView.setStatus("윷을 던지세요.");
+        gameView.initPieceComponents(game.getPlayers(), piece -> selectPiece(piece));
 
     }
     private void processYutResult(int result){

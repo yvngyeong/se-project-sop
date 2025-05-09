@@ -9,6 +9,7 @@ public class Piece {
     private int ownerId;
     private boolean isFinished;
     private int groupId = 0;
+    private boolean justArrived = false; // ✅ 도착 표시용 필드 추가
 
     // 추가
     private Stack<Integer> posStack = new Stack<>();
@@ -95,8 +96,16 @@ public class Piece {
         }
         return -1;
     }
+    public boolean isJustArrived() {
+        return justArrived;
+    }
 
-
-
-
+    public void setJustArrived(boolean justArrived) {
+        this.justArrived = justArrived;
+    }
 }
+
+
+
+
+

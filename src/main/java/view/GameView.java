@@ -328,4 +328,13 @@ public class GameView extends JFrame {
             rightPanel.repaint();
         }
     }
+    public void initPieceComponents(List<Player> players, PieceClickListener pieceClickListener) {
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                PieceComponent pieceComp = new PieceComponent(piece, pieceClickListener);
+                pieceComponentMap.put(piece, pieceComp); // 💡 실사용 인스턴스 기준
+            }
+        }
+    }
+
 }
