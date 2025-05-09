@@ -90,7 +90,7 @@ public class Player {
     public List<Piece> getUnusedPieces(){
         List<Piece> unusedPieces = new ArrayList<>();
         for (Piece piece : getPieces()) {
-            if(piece.isFinished()==false && piece.getPosition()==0){
+            if(!piece.isFinished() && piece.getPosition()==0&& !piece.isJustArrived()){
                 unusedPieces.add(piece);
             }
         }

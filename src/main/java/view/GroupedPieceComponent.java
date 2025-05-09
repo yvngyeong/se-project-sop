@@ -41,18 +41,15 @@ public class GroupedPieceComponent extends JComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // 대표 색상: 첫 번째 말의 ownerId를 기준으로 예시 설정
+        if (pieces.isEmpty()) return;
+
         int ownerId = pieces.get(0).getOwnerId();
+        g.setColor(ownerId == 1 ? Color.BLUE : Color.RED);
+        g.fillOval(5, 5, 30, 30);
 
-        if (pieces.get(0).getPosition() != 0) {
-            g.setColor(ownerId == 1 ? Color.BLUE : Color.RED);
-            g.fillOval(5, 5, 30, 30);
-
-
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 12));
-            g.drawString("x" + pieces.size(), 12, 22);
-        }
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 12));
+        g.drawString("x" + pieces.size(), 12, 22);
     }
 
 

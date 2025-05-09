@@ -6,13 +6,11 @@ import com.example.demo.Node;
 import listener.PieceClickListener;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.awt.Rectangle;
-import java.awt.Point;
-
 
 
 public abstract class BoardView extends JPanel {
@@ -43,10 +41,15 @@ public abstract class BoardView extends JPanel {
         }
     }
 
-    public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
-        this.removeAll();
 
-        // 1. 위치 index → 해당 위치에 있는 Piece 리스트
+    public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
+        Component[] comps = this.getComponents();
+        for (Component c : comps) {
+            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
+                this.remove(c);
+            }
+        }
+
         Map<Integer, List<Piece>> positionMap = new HashMap<>();
         for (Player player : players) {
             for (Piece piece : player.getPieces()) {
@@ -57,7 +60,6 @@ public abstract class BoardView extends JPanel {
             }
         }
 
-        // 2. 위치별로 처리
         for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
             int nodeId = entry.getKey();
             List<Piece> piecesAtSamePos = entry.getValue();
@@ -96,7 +98,9 @@ public abstract class BoardView extends JPanel {
 
         this.revalidate();
         this.repaint();
+
     }
+
 
 }
 

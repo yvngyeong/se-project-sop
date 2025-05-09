@@ -46,9 +46,12 @@ public class TetragonalBoard extends Board {
         edges.put(26, List.of(15));
         edges.put(20, List.of(25));
 
-        // 0 → 다음 노드 없음 → 이동 불가 → 승리 조건 발생
-        edges.put(0, List.of()); // 또는 edges.remove(0)
+        edges.put(28,List.of(0));
+        edges.put(19,List.of(0));
 
+        // 0 → 다음은 승리조건으로 이동
+        edges.put(0, List.of(29));
+        edges.put(29, List.of()); // 29 이후는 없음 → 완주 처리
 
     }
 
@@ -116,25 +119,34 @@ public class TetragonalBoard extends Board {
             }
 
             for (int i = 0; i < yutValue; i++) {
+                System.out.println("현재 말 위치: " + position);
                 List<Integer> nextPosition = edges.get(position);
 
                 if (nextPosition == null || nextPosition.isEmpty()) {
-                    // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
-                    System.out.println("도착");
-                    if (myPiece.getGroupId() == 1) {
-                        for (Piece grouped : myPiece.getGroupedPieces()) {
-                            grouped.finish();
-                        }
-                    }
+                    System.out.println("경로 없음 → 완주 처리");
                     myPiece.finish();
-                    position = 29; // 명시적으로 승리 위치 지정
                     break;
                 }
 
+                int next = nextPosition.get(0);
+
                 myPiece.pushPreviousPosition(position);
-                position = nextPosition.get(0);
+                position = next;
+                System.out.println("이동 후 말 위치: " + position);
 
-
+                if (position == 0) {
+                    if (i == yutValue - 1) {
+                        // 0번에서 정확히 멈춤
+                        myPiece.setJustArrived(true);
+                        System.out.println("0번 도착 → justArrived true");
+                    } else {
+                        // 0번 지나침 → 완주
+                        System.out.println("0번 도착했지만 이동 남음 → 완주");
+                        myPiece.setJustArrived(false);
+                        myPiece.finish();
+                        break;
+                    }
+                }
             }
         }
 

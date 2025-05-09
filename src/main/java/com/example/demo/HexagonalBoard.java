@@ -41,8 +41,9 @@ public class HexagonalBoard extends Board {
         edges.put(41, List.of(42));
         edges.put(42, List.of(30));
         edges.put(35, List.of(0));
-        // 0 → 다음 노드 없음 → 이동 불가 → 승리 조건 발생
-        edges.put(0, List.of()); // 또는 edges.remove(0)
+        // 0 → 다음 노드는 완료 노드
+        edges.put(0, List.of(43));
+        edges.put(43,List.of());  //43부터는 완주 처리
 
     }
 
@@ -78,6 +79,7 @@ public class HexagonalBoard extends Board {
 
         if(!isBackdo){
         if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
+            nodes.get(0).remove(myPiece);
             myPiece.setPosition(1); // 0 → 1
             myPiece.pushPreviousPosition(0);
             yutValue--; // 이미 1칸 이동했으므로 감소
@@ -109,9 +111,28 @@ public class HexagonalBoard extends Board {
         }
         for (int i = 0; i < yutValue; i++) {
             List<Integer> nextPosition = edges.get(position);
+            if (nextPosition == null || nextPosition.isEmpty()) {
+                System.out.println("경로 없음 → 완주 처리");
+                myPiece.finish();
+                break;
+            }
+            int next = nextPosition.get(0);
 
             myPiece.pushPreviousPosition(position);
-            position = nextPosition.get(0);
+            position = next;
+            if (position == 0) {
+                if (i == yutValue - 1) {
+                    // 0번에서 정확히 멈춤
+                    myPiece.setJustArrived(true);
+                    System.out.println("0번 도착 → justArrived true");
+                } else {
+                    // 0번 지나침 → 완주
+                    System.out.println("0번 도착했지만 이동 남음 → 완주");
+                    myPiece.setJustArrived(false);
+                    myPiece.finish();
+                    break;
+                }
+            }
 
         }}
 

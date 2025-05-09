@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 
 public class HexagonalBoardView extends BoardView {
@@ -153,67 +154,6 @@ public class HexagonalBoardView extends BoardView {
         }
     }
 
-    @Override
-    public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
-        Component[] comps = this.getComponents();
-        for (Component c : comps) {
-            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
-                this.remove(c);
-            }
-        }
-
-        Map<Integer, List<Piece>> positionMap = new HashMap<>();
-        for (Player player : players) {
-            for (Piece piece : player.getPieces()) {
-                if (!piece.isFinished()) {
-                    int pos = piece.getPosition();
-                    positionMap.computeIfAbsent(pos, k -> new ArrayList<>()).add(piece);
-                }
-            }
-        }
-
-        for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
-            int nodeId = entry.getKey();
-            List<Piece> piecesAtSamePos = entry.getValue();
-
-            Point nodePos = nodePositions.get(nodeId);
-            if (nodePos == null) continue;
-
-            if (piecesAtSamePos.size() == 1) {
-                Piece piece = piecesAtSamePos.get(0);
-                PieceComponent comp = pieceComponentMap.get(piece);
-                comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-                this.add(comp);
-            } else {
-                // 핵심: pieceComponentMap의 key와 동일한 인스턴스를 사용한 리스트 만들기
-                List<Piece> normalizedPieces = new ArrayList<>();
-                for (Piece p : piecesAtSamePos) {
-                    for (Piece key : pieceComponentMap.keySet()) {
-                        if (key == p) { // 인스턴스 동일성 비교
-                            normalizedPieces.add(key);
-                            break;
-                        }
-                    }
-                }
-
-                // 대표 piece에서 리스너 추출
-                Piece referencePiece = normalizedPieces.get(0);
-                PieceComponent refComp = pieceComponentMap.get(referencePiece);
-                PieceClickListener listener = refComp.getListener();
-
-                GroupedPieceComponent groupComp = new GroupedPieceComponent(normalizedPieces);
-                groupComp.setClickListener(listener);
-                groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-                this.add(groupComp);
-            }
-        }
-
-        this.revalidate();
-        this.repaint();
-
-    }
-
-
     private void drawPieces(Graphics2D g2) {
         for (Node node : board.getNodes()) {
             Point pos = nodePositions.get(node.getNodeID());
@@ -246,6 +186,104 @@ public class HexagonalBoardView extends BoardView {
             case 3: return Color.ORANGE;
             default: return Color.GRAY;
         }
+    }
+
+    @Override
+    public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
+        // 말만 제거
+        Component[] comps = this.getComponents();
+        for (Component c : comps) {
+            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
+                this.remove(c);
+            }
+        }
+
+        Map<Integer, List<Piece>> positionMap = new HashMap<>();
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                System.out.println("확인용 로그 → pos: " + piece.getPosition() + ", finished: " + piece.isFinished() + ", justArrived: " + piece.isJustArrived());
+                if (!piece.isFinished()) {
+                    int pos = piece.getPosition();
+                    positionMap.computeIfAbsent(pos, k -> new ArrayList<>()).add(piece);
+                }
+            }
+        }
+
+        // 위치별 말 표시
+        for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
+            int nodeId = entry.getKey();
+            List<Piece> piecesAtSamePos = entry.getValue();
+
+            // 0번 노드는 justArrived == true인 말만 표시
+            if (nodeId == 0) {
+                System.out.println("[디버깅] 0번에 있는 말들 (필터 전): " + piecesAtSamePos.size());
+
+                piecesAtSamePos = piecesAtSamePos.stream()
+                        .filter(Piece::isJustArrived)
+                        .collect(Collectors.toList());
+
+                System.out.println("[디버깅] 0번에 justArrived == true인 말들: " + piecesAtSamePos.size());
+
+                if (piecesAtSamePos.isEmpty()) {
+                    System.out.println("[디버깅] → 그릴 말 없음 → 리턴됨");
+                    continue;
+                }
+            }
+
+            Point nodePos = nodePositions.get(nodeId);
+            if (nodePos == null) continue;
+
+            if (piecesAtSamePos.size() == 1) {
+                Piece piece = piecesAtSamePos.get(0);
+
+                // 동일 인스턴스 찾기
+                Piece realKey = null;
+                for (Piece key : pieceComponentMap.keySet()) {
+                    if (key == piece) {
+                        realKey = key;
+                        break;
+                    }
+                }
+                if (realKey == null) {
+                    System.out.println("❌ realKey == null → 등록 안 된 piece입니다: pos = " + piece.getPosition() + ", justArrived = " + piece.isJustArrived());
+                    continue;
+                }
+
+                PieceComponent comp = pieceComponentMap.get(realKey);
+                if (comp == null) {
+                    System.out.println("❌ comp == null → Map에는 있으나 값이 없음");
+                    continue;
+                }
+                comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+                this.add(comp);
+            } else {
+                // 2개 이상일 경우 → GroupedPieceComponent 사용
+                List<Piece> normalizedPieces = new ArrayList<>();
+                for (Piece p : piecesAtSamePos) {
+                    for (Piece key : pieceComponentMap.keySet()) {
+                        if (key == p) {
+                            normalizedPieces.add(key);
+                            break;
+                        }
+                    }
+                }
+
+                if (normalizedPieces.isEmpty()) continue;
+
+                Piece referencePiece = normalizedPieces.get(0);
+                PieceComponent refComp = pieceComponentMap.get(referencePiece);
+                PieceClickListener listener = refComp.getListener();
+
+                GroupedPieceComponent groupComp = new GroupedPieceComponent(normalizedPieces);
+                groupComp.setClickListener(listener);
+                System.out.println("✅ GroupedPieceComponent 추가: nodeId = " + nodeId + ", pieces = " + normalizedPieces.size());
+                groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
+                this.add(groupComp);
+            }
+        }
+
+        this.revalidate();
+        this.repaint();
     }
 }
 
