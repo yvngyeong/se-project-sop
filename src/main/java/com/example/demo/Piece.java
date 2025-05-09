@@ -89,7 +89,12 @@ public class Piece {
         groupId = 0;
     }
 
-
+    public int getPreviousPosition() {
+        if (!posStack.isEmpty()) {
+            return posStack.peek(); // 또는 직접 Stack 확인
+        }
+        return -1;
+    }
 
 
 

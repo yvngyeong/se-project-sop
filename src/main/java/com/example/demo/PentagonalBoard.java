@@ -28,7 +28,7 @@ public class PentagonalBoard extends Board {
         for (int i = 0; i < 36; i++) {
             edges.put(i, List.of(i + 1));
         }
-
+        edges.put(25,List.of(32));
 
         edges.put(27, List.of(25));
         edges.put(29, List.of(25));
@@ -113,8 +113,12 @@ public class PentagonalBoard extends Board {
 
             for (int i = 0; i < yutValue; i++) {
                 List<Integer> nextPosition = edges.get(position);
+                if ((nextPosition == null || nextPosition.isEmpty())) {
+                    if (position == 0) {
+                        // 0번은 그냥 도달만 함
+                        break;
+                    }
 
-                if (nextPosition == null || nextPosition.isEmpty()) {
                     // 종점(시작점)을 통과하거나 이동할 곳이 없으면 승리 처리
                     System.out.println("승리");
                     if (myPiece.getGroupId() == 1) {
@@ -126,9 +130,28 @@ public class PentagonalBoard extends Board {
                     position = 36; // 명시적으로 승리 위치 지정
                     break;
                 }
-
                 myPiece.pushPreviousPosition(position);
-                position = nextPosition.get(0);
+                // 🎯 25로 가려는 순간 & 이전이 15,30,31인 경우 → 강제로 34로 분기
+                if (nextPosition.size() == 1 && nextPosition.get(0) == 25) {
+                    int prev = myPiece.getPreviousPosition(); // peek
+                    if (position == 30 || position == 31 || position == 15) {
+                        i++;
+                        position = 34; // 🔥 강제 분기!
+                        continue; // 다음 루프 진행
+                    }
+                }
+                // 25 → 34로 가는 예외 케이스
+                if (position == 25) {
+                    int prev = myPiece.getPreviousPosition(); // 새로 메서드 만들거나 스택 확인
+                    // 특수 라인(15, 30, 31) 또는 yutValue == 0일 때만 34로
+                    if (prev == 15 || prev == 30 || prev == 31 || yutValue - i == 0) {
+                        position = 34;
+                    } else {
+                        position = 32;
+                    }
+                } else {
+                    position = nextPosition.get(0);
+                }
 
                 if (position == 36) {
                     System.out.println("승리");
