@@ -265,18 +265,6 @@ public class TetragonalBoardView extends BoardView {
                 groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
                 this.add(groupComp);
             }
-
-            // 0번 노드였던 경우 → justArrived 리셋
-            for (Piece p : new ArrayList<>(piecesAtSamePos)) {
-                if (p.isJustArrived()) {
-                    p.setJustArrived(false); // ✅ 단, 그린 말만 reset
-                } else {
-                    // 아직 그리지 않은 말은 유지
-                    piecesAtSamePos.remove(p);
-                }
-            }
-
-            if (piecesAtSamePos.isEmpty()) continue;
         }
 
         this.revalidate();

@@ -35,7 +35,7 @@ public class PieceComponent extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        System.out.println("🎨 paintComponent 호출됨 → piece pos = " + piece.getPosition());
+        System.out.println("🎨 paintComponent 호출됨 → piece pos = " + piece.getPosition()+"그룹아이디:"+piece.getGroupId());
 
         // 색상 지정
         Color color = switch (piece.getOwnerId() % 4) {
@@ -86,8 +86,6 @@ public class PieceComponent extends JComponent {
         return listener;
     }
 
-    private void mouseClicked(){
 
-    }
 }
 

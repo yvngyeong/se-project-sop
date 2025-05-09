@@ -142,6 +142,7 @@ public class TetragonalBoard extends Board {
                     } else {
                         // 0번 지나침 → 완주
                         System.out.println("0번 도착했지만 이동 남음 → 완주");
+                        myPiece.setJustArrived(false);
                         myPiece.finish();
                         break;
                     }
