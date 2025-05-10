@@ -112,18 +112,11 @@ public class PentagonalBoard extends Board {
                 yutValue--;
             } else if (position == 15) // 시작 위치가 25일때(25에서 딱 멈췄을때)
             {
-                if(yutValue==3){
-                    myPiece.pushPreviousPosition(30);
-                    position=25;
-                    yutValue=0;
-                }
-                else{
-                    myPiece.pushPreviousPosition(position);
-                    position = 31;
-                    yutValue--;
+                myPiece.pushPreviousPosition(position);
+                position = 31;
+                yutValue--;
                 }
 
-            }
 
             for (int i = 0; i < yutValue; i++) {
                 List<Integer> nextPosition = edges.get(position);
@@ -133,22 +126,9 @@ public class PentagonalBoard extends Board {
                     break;
                 }
 
-                // 🎯 25로 가려는 순간 & 이전이 30인 경우 → 강제로 34로 분기 (15에서 걸인 경우는 위의 else if문으로 yutvalue가 0이 되어 제외됨)
-                if ((nextPosition.get(0) == 25)) {
-                    if (position == 30) {
-                        myPiece.pushPreviousPosition(30);
-                        myPiece.pushPreviousPosition(25);
-                        i++;
-                        position = 34; // 🔥 강제 분기!
-                        continue; // 다음 루프 진행
-                    }
-                }else{
-                    int next = nextPosition.get(0);
-                    myPiece.pushPreviousPosition(position);
-                    position = next;
-                }
-
-                System.out.println("이동 후 말 위치: " + position);
+                int next = nextPosition.get(0);
+                myPiece.pushPreviousPosition(position);
+                position = next;
 
                 if (position == 0) {
                     if (i == yutValue - 1) {
@@ -163,10 +143,22 @@ public class PentagonalBoard extends Board {
                         break;
                     }
                 }
-            }}
+                if(position==32){
+                    int prev1 = myPiece.popPreviousPosition();
+                    int prev2 = myPiece.popPreviousPosition();
 
-        myPiece.setPosition(position);
-        nodes.get(position).add(myPiece);
+                    if (prev2 == 30) {
+                        position = 34;
+                    } else {
+                        position = nextPosition.get(0);  // 일반 25->32
+                    }
+                    myPiece.pushPreviousPosition(prev1);
+                    myPiece.setPosition(position);
+                    nodes.get(position).add(myPiece);       //노드 정보도 갱신 필요
+                }
+
+                System.out.println("이동 후 말 위치: " + position);
+            }}
 
         // 잡기
         Node nextNode = nodes.get(position);
@@ -195,6 +187,8 @@ public class PentagonalBoard extends Board {
 
             }
         }
+        myPiece.setPosition(position);
+        nodes.get(position).add(myPiece);
 
         if (myPiece.getGroupId() == 1) {
             for (Piece grouped : myPiece.getGroupedPieces()) {
