@@ -40,6 +40,8 @@ public class HexagonalBoard extends Board {
         edges.put(40, List.of(30));
         edges.put(41, List.of(42));
         edges.put(42, List.of(30));
+        edges.put(31, List.of(32));
+        edges.put(32, List.of(30));
         edges.put(35, List.of(0));
         // 0 → 다음 노드는 완료 노드
         edges.put(0, List.of(43));
@@ -108,6 +110,10 @@ public class HexagonalBoard extends Board {
             myPiece.pushPreviousPosition(position);
             position = 36;
             yutValue--;
+        } else if (position == 20) {
+            myPiece.pushPreviousPosition(position);
+            position = 31;
+            yutValue--;
         }
         for (int i = 0; i < yutValue; i++) {
             List<Integer> nextPosition = edges.get(position);
@@ -132,6 +138,19 @@ public class HexagonalBoard extends Board {
                     myPiece.finish();
                     break;
                 }
+            }
+            if(position==34){
+                int prev1 = myPiece.popPreviousPosition();
+                int prev2 = myPiece.popPreviousPosition();
+
+
+                if (prev2 == 32 || prev2 == 42) {
+                    position = 36;
+                } else {
+                    position = nextPosition.get(0);  // 일반 30→34
+                }
+                myPiece.pushPreviousPosition(prev1);
+                myPiece.pushPreviousPosition(position);
             }
 
         }}
