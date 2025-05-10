@@ -90,6 +90,14 @@ public class HexagonalBoard extends Board {
         isBackdo = false;
         int position = myPiece.getPosition();
 
+        if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
+            System.out.println("\uD83C\uDF1F 백도 후 첫 이동 → 완주 처리");
+            myPiece.finish();
+            myPiece.setWaitingForFinish(false);
+            return;
+        }
+
+
         // 빽도
         if (yutValue == -1) {
             if (myPiece.isFinished())
@@ -104,6 +112,7 @@ public class HexagonalBoard extends Board {
                 myPiece.setPosition(prev);
                 if (prev == 0) {
                     myPiece.setJustArrived(true);
+                    myPiece.setWaitingForFinish(true);
                 }
 
                 Node targetNode = nodes.get(prev);
@@ -131,6 +140,7 @@ public class HexagonalBoard extends Board {
                 return;
             } else {
                 System.out.println("뒤로 갈 수 없음");
+                myPiece.setWaitingForFinish(true);
                 nodes.get(position).add(myPiece);
                 return;
             }

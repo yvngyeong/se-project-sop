@@ -89,6 +89,16 @@ public class PentagonalBoard extends Board {
         isCatched=false;
         isBackdo = false;
         int position = myPiece.getPosition();
+
+        // 백도로 0번 도착 후 다음 이동 → 완주 처리
+        if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
+            System.out.println("🎯 백도 후 첫 이동 → 완주 처리");
+            myPiece.finish();
+            myPiece.setWaitingForFinish(false);
+            return;
+        }
+
+
         // 빽도
         // 빽도 처리
         if (yutValue == -1) {
@@ -103,7 +113,9 @@ public class PentagonalBoard extends Board {
 
                 myPiece.setPosition(prev);
                 if (prev == 0) {
-                    myPiece.setJustArrived(true);
+                    myPiece.setJustArrived(true);  // ⬅ View에서 그릴 수 있도록 true
+                    myPiece.setWaitingForFinish(true);
+
                 }
 
                 Node targetNode = nodes.get(prev);
@@ -131,6 +143,7 @@ public class PentagonalBoard extends Board {
                 return;
             } else {
                 System.out.println("뒤로 갈 수 없음");
+                myPiece.setWaitingForFinish(true);
                 nodes.get(position).add(myPiece);
                 return;
             }
