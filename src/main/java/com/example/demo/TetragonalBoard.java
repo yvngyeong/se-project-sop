@@ -202,40 +202,34 @@ public class TetragonalBoard extends Board {
             }
         }
 
-        // 잡기 & 그룹핑
-        Node nextNode = nodes.get(position); // 말이 도착할 위치에 다른 말이 있는지 알기 위해 ..
-        List<Piece> pieces = new ArrayList<>(nextNode.getOwnedPieces()); // 말이 도착할 위치에 있는 모든 말들의 리스트
+        // 말 위치 등록
+        myPiece.setPosition(position);
+        nodes.get(position).add(myPiece);
 
-        for (int i = 0; i < pieces.size(); i++)
-        {
-            Piece opponentPiece = pieces.get(i);
-            if (opponentPiece == myPiece) continue;
+        if (position == 0) {
+            myPiece.setJustArrived(true);
+        }
 
-            if (opponentPiece.isFinished()) continue;//끝나면 잡을 수 없음
-
-            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId() )&& opponentPiece.getPosition() !=-1) // 같은 플레이어의 말이 아닐때 -> 잡기
-            {
-                nextNode.remove(pieces.get(i));
-                opponentPiece.setPosition(0);
-
-                opponentPiece.clearPreviousPositions(); // Stack 비우기
-                opponentPiece.clearGroup();             // 그룹 리스트 비우기
-
-
-                nodes.get(0).add(opponentPiece);
-                isCatched = true;
-                System.out.println("상대 팀 말 잡음! ");// 테스트용으로 써본겁니다
-            }
-            else if ((opponentPiece.getOwnerId() == myPiece.getOwnerId())&& myPiece.getPosition() != 0) // 같은 플레이어 말일때 -> 그룹핑
-            {
-                myPiece.grouping(opponentPiece);
-                System.out.println("그룹핑함");// 테스트용으로 써본겁니다
-
+        // 먼저 그룹 전체를 같은 위치로 업데이트 (❗ 이게 핵심!)
+        if (myPiece.getGroupId() == 1) {
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                grouped.setPosition(position);
             }
         }
 
-        myPiece.setPosition(position);
-        nodes.get(position).add(myPiece);
+        // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
+        handleCaptureAndGroup(myPiece, nodes.get(position));
+
+       // ✅ 그룹 말 이동 동기화
+        if (myPiece.getGroupId() == 1) {
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                if (grouped != myPiece) {
+                    nodes.get(grouped.getPosition()).remove(grouped);
+                    grouped.setPosition(position);
+                    nodes.get(position).add(grouped);
+                }
+            }
+        }
 
         if (myPiece.getGroupId() == 1) {
             for (Piece grouped : myPiece.getGroupedPieces()) {
