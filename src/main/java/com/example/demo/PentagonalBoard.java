@@ -89,35 +89,66 @@ public class PentagonalBoard extends Board {
         isCatched=false;
         isBackdo = false;
         int position = myPiece.getPosition();
+
+        // 백도로 0번 도착 후 다음 이동 → 완주 처리
+        if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
+            System.out.println("🎯 백도 후 첫 이동 → 완주 처리");
+            myPiece.finish();
+            myPiece.setWaitingForFinish(false);
+            return;
+        }
+
+
         // 빽도
+        // 빽도 처리
         if (yutValue == -1) {
             if (myPiece.isFinished())
                 return;
 
-            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
-
+            int prev = myPiece.popPreviousPosition(); // 본인의 이전 위치
             nodes.get(position).remove(myPiece);
 
-            if (prev != -1) // 뒤로 갈 수 있을 때
-            {
+            if (prev != -1) {
                 System.out.println("빽도");
 
                 myPiece.setPosition(prev);
                 if (prev == 0) {
                     myPiece.setJustArrived(true);  // ⬅ View에서 그릴 수 있도록 true
+                    myPiece.setWaitingForFinish(true);
+
                 }
 
                 Node targetNode = nodes.get(prev);
-                handleCaptureAndGroup(myPiece, targetNode);  // ⬅ 잡기/그룹핑 처리
+                handleCaptureAndGroup(myPiece, targetNode);
                 targetNode.add(myPiece);
-                return;  // 중복 방지
-            } else // 시작지점일때
-            {
+
+        
+                if (myPiece.getGroupId() != -1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        if (grouped != myPiece && !grouped.isFinished()) {
+                            nodes.get(grouped.getPosition()).remove(grouped);
+
+                            int groupedPrev = grouped.popPreviousPosition();
+                            if (groupedPrev != -1) {
+                                grouped.setPosition(groupedPrev);
+                                nodes.get(groupedPrev).add(grouped);
+                                if (groupedPrev == 0) {
+                                    grouped.setJustArrived(true);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return;
+            } else {
                 System.out.println("뒤로 갈 수 없음");
+                myPiece.setWaitingForFinish(true);
                 nodes.get(position).add(myPiece);
                 return;
             }
         }
+
 
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
 
