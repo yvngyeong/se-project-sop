@@ -107,49 +107,68 @@ public class TetragonalBoard extends Board {
         isBackdo = false;
         int position = myPiece.getPosition();
 
+        // ✅ 0번에 있고 이전에 백도로 온 경우 → 다른 윷값 나오면 완주 처리
+        if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
+            System.out.println("🎯 백도 후 첫 이동 → 완주 처리");
+            myPiece.finish();
+            myPiece.setWaitingForFinish(false);
+            return;
+        }
+
+
         // 빽도
         if (yutValue == -1) {
             if (myPiece.isFinished())
                 return;
 
+            myPiece.setWaitingForFinish(false);  // ✅ 백도는 완주 상태가 아님
+
             int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
             nodes.get(position).remove(myPiece);
+            // 현재 위치에서 말 제거
 
-            if (prev != -1) // 뒤로 갈 수 있을 때
-            {
+            if (prev != -1) {
                 System.out.println("빽도");
+
+                // 그룹 말도 현재 위치에서 제거
                 if (myPiece.getGroupId() != -1) {
                     for (Piece grouped : myPiece.getGroupedPieces()) {
                         nodes.get(grouped.getPosition()).remove(grouped);
                     }
-                } else {
-                    nodes.get(position).remove(myPiece);
                 }
 
+                // 위치 갱신
+                myPiece.setPosition(prev);
 
-                myPiece.setPosition(prev);            // ✅ 먼저 위치를 갱신해줘야 함!!
+                // 0번 노드일 경우 justArrived 및 완주 대기 플래그 설정
                 if (prev == 0) {
                     myPiece.setJustArrived(true);
+                    myPiece.setWaitingForFinish(true);
                 }
-                Node targetNode = nodes.get(prev);
 
-                handleCaptureAndGroup(myPiece, targetNode); // ✅ 이제 정확한 위치 기반으로 잡기 검사 가능
+                Node targetNode = nodes.get(prev);
+                handleCaptureAndGroup(myPiece, targetNode); // 잡기/그룹핑 처리
                 targetNode.add(myPiece);
+
+                // 그룹 말들도 동일 위치(prev)로 이동 후 추가
                 if (myPiece.getGroupId() != -1) {
                     for (Piece grouped : myPiece.getGroupedPieces()) {
                         if (grouped != myPiece && !grouped.isFinished()) {
-                            nodes.get(grouped.getPosition()).remove(grouped);
                             grouped.setPosition(prev);
-                            nodes.get(position).add(grouped);
+                            nodes.get(prev).add(grouped);
                         }
                     }
                 }
+
+            } else {
+                System.out.println("뒤로 갈 수 없음");
+                nodes.get(position).add(myPiece); // 다시 원위치로
             }
 
             return; // ⛔ 중복 방지용
-
-
         }
+
+
 
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
         if(!isBackdo) {
@@ -203,7 +222,9 @@ public class TetragonalBoard extends Board {
                 if (position == 0) {
                     if (i == yutValue - 1) {
                         // 0번에서 정확히 멈춤
+
                         myPiece.setJustArrived(true);
+                        myPiece.pushPreviousPosition(0);
                         System.out.println("0번 도착 → justArrived true");
                     } else {
                         // 0번 지나침 → 완주

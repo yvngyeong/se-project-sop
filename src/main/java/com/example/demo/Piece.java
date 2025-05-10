@@ -14,6 +14,7 @@ public class Piece {
     // 추가
     private Stack<Integer> posStack = new Stack<>();
     private List<Piece> groupPieces = new ArrayList<>();
+    private boolean isWaitingForFinish = false;
 
     public Piece(int ownerId ) {
         this.position = 0;
@@ -50,6 +51,14 @@ public class Piece {
 
     public int getGroupId() {
         return groupId;
+    }
+
+    public boolean isWaitingForFinish() {
+        return isWaitingForFinish;
+    }
+
+    public void setWaitingForFinish(boolean waitingForFinish) {
+        this.isWaitingForFinish = waitingForFinish;
     }
 
     // 추가
