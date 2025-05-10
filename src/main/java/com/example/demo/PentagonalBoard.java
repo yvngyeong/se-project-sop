@@ -83,6 +83,7 @@ public class PentagonalBoard extends Board {
     }
 
 
+
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
         isCatched=false;
@@ -99,16 +100,15 @@ public class PentagonalBoard extends Board {
 
 
         // 빽도
+        // 빽도 처리
         if (yutValue == -1) {
             if (myPiece.isFinished())
                 return;
 
-            int prev = myPiece.popPreviousPosition(); // 말이 지나온 경로 중 가장 최근 위치
-
+            int prev = myPiece.popPreviousPosition(); // 본인의 이전 위치
             nodes.get(position).remove(myPiece);
 
-            if (prev != -1) // 뒤로 갈 수 있을 때
-            {
+            if (prev != -1) {
                 System.out.println("빽도");
 
                 myPiece.setPosition(prev);
@@ -119,17 +119,36 @@ public class PentagonalBoard extends Board {
                 }
 
                 Node targetNode = nodes.get(prev);
-                handleCaptureAndGroup(myPiece, targetNode);  // ⬅ 잡기/그룹핑 처리
+                handleCaptureAndGroup(myPiece, targetNode);
                 targetNode.add(myPiece);
-                return;  // 중복 방지
-            } else // 시작지점일때
-            {
+
+        
+                if (myPiece.getGroupId() != -1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        if (grouped != myPiece && !grouped.isFinished()) {
+                            nodes.get(grouped.getPosition()).remove(grouped);
+
+                            int groupedPrev = grouped.popPreviousPosition();
+                            if (groupedPrev != -1) {
+                                grouped.setPosition(groupedPrev);
+                                nodes.get(groupedPrev).add(grouped);
+                                if (groupedPrev == 0) {
+                                    grouped.setJustArrived(true);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return;
+            } else {
                 System.out.println("뒤로 갈 수 없음");
                 myPiece.setWaitingForFinish(true);
                 nodes.get(position).add(myPiece);
                 return;
             }
         }
+
 
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
 
@@ -214,42 +233,26 @@ public class PentagonalBoard extends Board {
                 System.out.println("이동 후 말 위치: " + position);
             }}
 
-        // 잡기
-        Node nextNode = nodes.get(position);
-        List<Piece> pieces = new ArrayList<>(nextNode.getOwnedPieces());
-
-        for (int i = 0; i < pieces.size(); i++) {
-            Piece opponentPiece = pieces.get(i);
-
-            if (opponentPiece.isFinished()) continue;
-
-            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId())&& opponentPiece.getPosition() !=0) {
-
-                nextNode.remove(pieces.get(i));
-                opponentPiece.setPosition(0);
-
-                opponentPiece.clearPreviousPositions(); // Stack 비우기
-                opponentPiece.clearGroup();             // 그룹 리스트 비우기
-
-                nodes.get(0).add(opponentPiece);
-                isCatched=true;
-                System.out.println("상대 팀 말 잡음!");
-            } else if ((opponentPiece.getOwnerId() == myPiece.getOwnerId())&& myPiece.getPosition() != 0) // 같은 플레이어 말일때 -> 그룹핑
-            {
-                myPiece.grouping(opponentPiece);
-                System.out.println("그룹핑함");// 테스트용으로 써본겁니다
-
-            }
-        }
+        // 말 위치 등록
         myPiece.setPosition(position);
         nodes.get(position).add(myPiece);
 
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    nodes.get(grouped.getPosition()).remove(grouped);
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
+        if (position == 0) {
+            myPiece.setJustArrived(true);
+        }
+
+        // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
+        handleCaptureAndGroup(myPiece, nodes.get(position));
+
+        // ✅ 그룹 이동 처리 (그룹핑 후 최신 상태 기준)
+        for (Piece grouped : myPiece.getGroupedPieces()) {
+            if (grouped != myPiece && !grouped.isFinished()) {
+                nodes.get(grouped.getPosition()).remove(grouped);
+                grouped.setPosition(position);
+                nodes.get(position).add(grouped);
+
+                if (position == 0) {
+                    grouped.setJustArrived(true);  // ✅ 여기 중요
                 }
             }
         }

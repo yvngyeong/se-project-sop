@@ -136,7 +136,7 @@ public class TetragonalBoard extends Board {
                         nodes.get(grouped.getPosition()).remove(grouped);
                     }
                 }
-
+              
                 // 위치 갱신
                 myPiece.setPosition(prev);
 
@@ -167,9 +167,7 @@ public class TetragonalBoard extends Board {
 
             return; // ⛔ 중복 방지용
         }
-
-
-
+      
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
         if(!isBackdo) {
             if (myPiece.getPosition() == 0 && (myPiece.popPreviousPosition() == -1)) {
@@ -234,53 +232,47 @@ public class TetragonalBoard extends Board {
                         break;
                     }
                 }
-            }
-        }
 
-        // 잡기 & 그룹핑
-        Node nextNode = nodes.get(position); // 말이 도착할 위치에 다른 말이 있는지 알기 위해 ..
-        List<Piece> pieces = new ArrayList<>(nextNode.getOwnedPieces()); // 말이 도착할 위치에 있는 모든 말들의 리스트
+                if(position==25){
+                    int prev1 = myPiece.popPreviousPosition();
+                    int prev2 = myPiece.popPreviousPosition();
 
-        for (int i = 0; i < pieces.size(); i++)
-        {
-            Piece opponentPiece = pieces.get(i);
-            if (opponentPiece == myPiece) continue;
-
-            if (opponentPiece.isFinished()) continue;//끝나면 잡을 수 없음
-
-            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId() )&& opponentPiece.getPosition() !=-1) // 같은 플레이어의 말이 아닐때 -> 잡기
-            {
-                nextNode.remove(pieces.get(i));
-                opponentPiece.setPosition(0);
-
-                opponentPiece.clearPreviousPositions(); // Stack 비우기
-                opponentPiece.clearGroup();             // 그룹 리스트 비우기
-
-
-                nodes.get(0).add(opponentPiece);
-                isCatched = true;
-                System.out.println("상대 팀 말 잡음! ");// 테스트용으로 써본겁니다
-            }
-            else if ((opponentPiece.getOwnerId() == myPiece.getOwnerId())&& myPiece.getPosition() != 0) // 같은 플레이어 말일때 -> 그룹핑
-            {
-                myPiece.grouping(opponentPiece);
-                System.out.println("그룹핑함");// 테스트용으로 써본겁니다
-
-            }
-        }
-
-        myPiece.setPosition(position);
-        nodes.get(position).add(myPiece);
-
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    nodes.get(grouped.getPosition()).remove(grouped);
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
+                    if (prev2 == 23) {
+                        position = 27;
+                    } else {
+                        position = nextPosition.get(0);
+                    }
+                    myPiece.pushPreviousPosition(prev1);
+                    myPiece.setPosition(position);
+                    nodes.get(position).add(myPiece);   //노드 정보도 갱신 필요
                 }
             }
         }
+
+        // 말 위치 등록
+        myPiece.setPosition(position);
+        nodes.get(position).add(myPiece);
+
+        if (position == 0) {
+            myPiece.setJustArrived(true);
+        }
+
+        // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
+        handleCaptureAndGroup(myPiece, nodes.get(position));
+
+        // ✅ 그룹 이동 처리 (그룹핑 후 최신 상태 기준)
+        for (Piece grouped : myPiece.getGroupedPieces()) {
+            if (grouped != myPiece && !grouped.isFinished()) {
+                nodes.get(grouped.getPosition()).remove(grouped);
+                grouped.setPosition(position);
+                nodes.get(position).add(grouped);
+
+                if (position == 0) {
+                    grouped.setJustArrived(true);  // ✅ 여기 중요
+                }
+            }
+        }
+
 
     }
 
