@@ -96,4 +96,8 @@ public class Player {
         }
         return  unusedPieces;
     }
+
+    public void addPiece(Piece piece) {
+        pieces.add(piece);
+    }
 }

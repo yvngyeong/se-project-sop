@@ -331,10 +331,13 @@ public class GameView extends JFrame {
     public void initPieceComponents(List<Player> players, PieceClickListener pieceClickListener) {
         for (Player player : players) {
             for (Piece piece : player.getPieces()) {
-                PieceComponent pieceComp = new PieceComponent(piece, pieceClickListener);
-                pieceComponentMap.put(piece, pieceComp); // 💡 실사용 인스턴스 기준
+                if (!pieceComponentMap.containsKey(piece)) { // 기존에 없을 때만 새로 생성
+                    PieceComponent pieceComp = new PieceComponent(piece, pieceClickListener);
+                    pieceComponentMap.put(piece, pieceComp);
+                } else {
+                    // 이미 존재하는 경우, 리스너만 다시 설정
+                    pieceComponentMap.get(piece).setClickListener(pieceClickListener);
+                }
             }
         }
-    }
-
-}
+    }}

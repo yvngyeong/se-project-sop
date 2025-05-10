@@ -20,9 +20,13 @@ public class Game {
         this.players = new ArrayList<>();
 
         // 플레이어 생성
+        // Game.java
         for (int i = 1; i <= playerNum; i++) {
-            players.add(new Player(i, pieceNum));
+            Player player = new Player(i, pieceNum);
+            players.add(player);
+
         }
+
     }
 
     public void start() {

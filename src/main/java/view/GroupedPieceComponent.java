@@ -64,6 +64,3 @@ public class GroupedPieceComponent extends JComponent {
 
 
 }
-
-
-

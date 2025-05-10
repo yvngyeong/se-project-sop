@@ -57,6 +57,8 @@ public class Piece {
         this.groupId = 1;
         otherPiece.groupId = 1;
 
+        System.out.println("✅ 그룹핑 → this.hash=" + this.hashCode() + ", other.hash=" + otherPiece.hashCode());
+
         if (!this.groupPieces.contains(otherPiece)) {
             this.groupPieces.add(otherPiece);
         }
@@ -64,6 +66,8 @@ public class Piece {
         if (!otherPiece.groupPieces.contains(this)) {
             otherPiece.groupPieces.add(this);
         }
+
+        System.out.println("   ↪️ 그룹 크기: " + this.groupPieces.size());
     }
 
     public List<Piece> getGroupedPieces() {
