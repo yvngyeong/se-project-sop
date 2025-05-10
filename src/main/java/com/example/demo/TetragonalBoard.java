@@ -209,6 +209,20 @@ public class TetragonalBoard extends Board {
                         break;
                     }
                 }
+
+                if(position==25){
+                    int prev1 = myPiece.popPreviousPosition();
+                    int prev2 = myPiece.popPreviousPosition();
+
+                    if (prev2 == 23) {
+                        position = 27;
+                    } else {
+                        position = nextPosition.get(0);
+                    }
+                    myPiece.pushPreviousPosition(prev1);
+                    myPiece.setPosition(position);
+                    nodes.get(position).add(myPiece);   //노드 정보도 갱신 필요
+                }
             }
         }
 
