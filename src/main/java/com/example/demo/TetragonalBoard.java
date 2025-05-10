@@ -72,6 +72,7 @@ public class TetragonalBoard extends Board {
                 opponentPiece.setPosition(0);
                 opponentPiece.clearPreviousPositions();
                 opponentPiece.clearGroup();
+                opponentPiece.setJustArrived(false);
                 nodes.get(0).add(opponentPiece);
                 isCatched = true;
                 System.out.println("상대 팀 말 잡음!");
