@@ -203,7 +203,17 @@ public class HexagonalBoard extends Board {
                 } else {
                     // 0번 지나침 → 완주
                     System.out.println("0번 도착했지만 이동 남음 → 완주");
-                    myPiece.setJustArrived(false);
+                    myPiece.setJustArrived(true);
+                    if (myPiece.getGroupId() != -1) {
+                        for (Piece grouped : myPiece.getGroupedPieces()) {
+                            if (grouped != myPiece && !grouped.isFinished()) {
+                                grouped.finish();
+                                nodes.get(grouped.getPosition()).remove(grouped); // 노드에서 제거도 필요
+                            }
+                        }
+
+
+                    }
                     myPiece.finish();
                     break;
                 }
