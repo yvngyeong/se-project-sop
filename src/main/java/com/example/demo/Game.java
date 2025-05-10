@@ -23,11 +23,8 @@ public class Game {
         // Game.java
         for (int i = 1; i <= playerNum; i++) {
             Player player = new Player(i, pieceNum);
-            for (int j = 0; j < pieceNum; j++) {
-                Piece piece = new Piece(i);
-                player.addPiece(piece);     // 이 인스턴스만 사용해야 함
-            }
             players.add(player);
+
         }
 
     }
