@@ -197,43 +197,26 @@ public class HexagonalBoard extends Board {
 
         }}
 
-        // 잡기
-        Node nextNode = nodes.get(position);
-        List<Piece> pieces = new ArrayList<>(nextNode.getOwnedPieces());
-
-        for (int i = 0; i < pieces.size(); i++) {
-
-            Piece opponentPiece = pieces.get(i);
-
-            if (opponentPiece.isFinished()) continue;
-
-            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId())&& opponentPiece.getPosition() !=0 ) {
-                nextNode.remove(pieces.get(i));
-                opponentPiece.setPosition(0);
-
-                opponentPiece.clearPreviousPositions(); // Stack 비우기
-                opponentPiece.clearGroup();             // 그룹 리스트 비우기
-
-
-                nodes.get(0).add(opponentPiece);
-                isCatched=true;
-
-            } else if ((opponentPiece.getOwnerId() == myPiece.getOwnerId() )&& myPiece.getPosition() != 0) // 같은 플레이어 말일때 -> 그룹핑
-            {
-                myPiece.grouping(opponentPiece);
-
-            }
-        }
-
+        // 말 위치 등록
         myPiece.setPosition(position);
         nodes.get(position).add(myPiece);
 
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    nodes.get(grouped.getPosition()).remove(grouped);
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
+        if (position == 0) {
+            myPiece.setJustArrived(true);
+        }
+
+        // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
+        handleCaptureAndGroup(myPiece, nodes.get(position));
+
+        // ✅ 그룹 이동 처리 (그룹핑 후 최신 상태 기준)
+        for (Piece grouped : myPiece.getGroupedPieces()) {
+            if (grouped != myPiece && !grouped.isFinished()) {
+                nodes.get(grouped.getPosition()).remove(grouped);
+                grouped.setPosition(position);
+                nodes.get(position).add(grouped);
+
+                if (position == 0) {
+                    grouped.setJustArrived(true);  // ✅ 여기 중요
                 }
             }
         }
