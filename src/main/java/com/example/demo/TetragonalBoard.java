@@ -229,6 +229,10 @@ public class TetragonalBoard extends Board {
                 nodes.get(grouped.getPosition()).remove(grouped);
                 grouped.setPosition(position);
                 nodes.get(position).add(grouped);
+
+                if (position == 0) {
+                    grouped.setJustArrived(true);  // ✅ 여기 중요
+                }
             }
         }
 
