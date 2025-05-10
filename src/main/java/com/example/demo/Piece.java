@@ -41,7 +41,6 @@ public class Piece {
 
         this.isFinished = true;
         this.clearPreviousPositions();    // 이동 경로 제거
-        this.clearGroup();
     }
 
     public void unfinish() {this.isFinished = false;}

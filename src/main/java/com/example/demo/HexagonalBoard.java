@@ -60,6 +60,9 @@ public class HexagonalBoard extends Board {
             boolean isSamePosition = opponentPiece.getPosition() == myPiece.getPosition();
 
             if (!isSameTeam && isSamePosition) {
+                if(myPiece.getPosition()==0&&!opponentPiece.isJustArrived()){
+                    break;
+                }
                 targetNode.remove(opponentPiece);
                 opponentPiece.setPosition(0);
                 opponentPiece.clearPreviousPositions();
@@ -133,7 +136,6 @@ public class HexagonalBoard extends Board {
                 handleCaptureAndGroup(myPiece, targetNode);
                 targetNode.add(myPiece);
 
-
                 if (myPiece.getGroupId() != -1) {
                     for (Piece grouped : myPiece.getGroupedPieces()) {
                         if (grouped != myPiece && !grouped.isFinished()) {
@@ -169,13 +171,10 @@ public class HexagonalBoard extends Board {
             myPiece.pushPreviousPosition(0);
             yutValue--; // 이미 1칸 이동했으므로 감소
         }
-        if (myPiece.isFinished())
-            return;
 
         position = myPiece.getPosition();
         Node currentNode = nodes.get(position);
         currentNode.remove(myPiece);
-
 
         if (position == 5) {
             myPiece.pushPreviousPosition(position);
@@ -228,14 +227,11 @@ public class HexagonalBoard extends Board {
 
 
                     }
-                    myPiece.finish();
-                    break;
                 }
             }
             if(position==34){
                 int prev1 = myPiece.popPreviousPosition();
                 int prev2 = myPiece.popPreviousPosition();
-
 
                 if (prev2 == 32 || prev2 == 42) {
                     position = 36;
@@ -261,8 +257,16 @@ public class HexagonalBoard extends Board {
                 }
             }
         }
+        if(position==43){
+            myPiece.finish();
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                if (grouped != myPiece) {
+                    grouped.setJustArrived(false);
+                    grouped.finish();
+                }
+            }
 
-
+        }
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
         handleCaptureAndGroup(myPiece, nodes.get(position));
 
@@ -279,17 +283,6 @@ public class HexagonalBoard extends Board {
             }
         }
 
-        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty())
-        {
-            System.out.println("승리 (위치 " + position + ")");
-            if (myPiece.getGroupId() == 1) {
-                for (Piece grouped : myPiece.getGroupedPieces()) {
-                    grouped.finish();
-                }
-            }
-            myPiece.finish();
-
-        }
 
     }
     public boolean isCatched() {

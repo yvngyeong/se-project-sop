@@ -59,15 +59,16 @@ public class TetragonalBoard extends Board {
         List<Piece> pieces = new ArrayList<>(targetNode.getOwnedPieces());
 
         for (Piece opponentPiece : pieces) {
-            if (opponentPiece == myPiece) continue; // 자기 자신은 제외
-            if (opponentPiece.isFinished()) continue; // 이미 완주한 말은 제외
+            if (opponentPiece == myPiece) continue;
+            if (opponentPiece.isFinished()) continue;
 
             boolean isSameTeam = opponentPiece.getOwnerId() == myPiece.getOwnerId();
             boolean isSamePosition = opponentPiece.getPosition() == myPiece.getPosition();
-            boolean isNotFinished = !opponentPiece.isFinished();
 
-            // ✅ 1. 상대 팀이면 무조건 잡는다 (위치가 같고, 안 끝났으면)
-            if (!isSameTeam && isSamePosition && isNotFinished) {
+            if (!isSameTeam && isSamePosition) {
+                if(myPiece.getPosition()==0&&!opponentPiece.isJustArrived()){
+                    break;
+                }
                 targetNode.remove(opponentPiece);
                 opponentPiece.setPosition(0);
                 opponentPiece.clearPreviousPositions();
@@ -76,21 +77,13 @@ public class TetragonalBoard extends Board {
                 nodes.get(0).add(opponentPiece);
                 isCatched = true;
                 System.out.println("상대 팀 말 잡음!");
-            }
-
-            // ✅ 2. 같은 팀이면 그룹핑
-            else if (isSameTeam && isSamePosition) {
-
-                // 0번 노드인 경우: 동시에 도착한 경우만 그룹핑 허용
+            } else if (isSameTeam && isSamePosition) {
                 if (myPiece.getPosition() == 0) {
                     if (myPiece.isJustArrived() && opponentPiece.isJustArrived()) {
                         myPiece.grouping(opponentPiece);
-                        System.out.println("0번 노드에서 그룹핑함 (둘 다 방금 도착)");
+                        System.out.println("0번 노드 그룹핑 (둘 다 justArrived)");
                     }
-                }
-
-                // 0번 아닌 경우: 그냥 그룹핑
-                else {
+                } else {
                     myPiece.grouping(opponentPiece);
                     System.out.println("그룹핑함");
                 }
@@ -174,20 +167,9 @@ public class TetragonalBoard extends Board {
 
                 return;
             } else {
-                // 0번 지나침 → 완주
-                System.out.println("0번 도착했지만 이동 남음 → 완주");
-                myPiece.setJustArrived(false);
-                myPiece.finish();
-
-                // ✅ 그룹 말들도 함께 완주 처리
-                if (myPiece.getGroupId() != -1) {
-                    for (Piece grouped : myPiece.getGroupedPieces()) {
-                        if (grouped != myPiece && !grouped.isFinished()) {
-                            grouped.finish();
-                        }
-                    }
-                }
-
+                System.out.println("뒤로 갈 수 없음");
+                myPiece.setWaitingForFinish(true);
+                nodes.get(position).add(myPiece);
                 return;
             }
         }
@@ -248,7 +230,6 @@ public class TetragonalBoard extends Board {
                         // 0번에서 정확히 멈춤
 
                         myPiece.setJustArrived(true);
-                        myPiece.pushPreviousPosition(0);
                         System.out.println("0번 도착 → justArrived true");
                     } else {
                         // 0번 지나침 → 완주
@@ -264,8 +245,6 @@ public class TetragonalBoard extends Board {
 
 
                         }
-                        myPiece.finish();
-                        break;
                     }
                 }
 
@@ -291,6 +270,21 @@ public class TetragonalBoard extends Board {
 
         if (position == 0) {
             myPiece.setJustArrived(true);
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                if (grouped != myPiece && !grouped.isFinished()) {
+                    grouped.setJustArrived(true);
+                }
+            }
+        }
+        if(position==29){
+            myPiece.finish();
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                if (grouped != myPiece) {
+                    grouped.setJustArrived(false);
+                    grouped.finish();
+                }
+            }
+
         }
 
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
@@ -309,17 +303,6 @@ public class TetragonalBoard extends Board {
             }
         }
 
-        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty())
-        {
-            System.out.println("승리 (위치 " + position + ")");
-            if (myPiece.getGroupId() == 1) {
-                for (Piece grouped : myPiece.getGroupedPieces()) {
-                    grouped.finish();
-                }
-            }
-            myPiece.finish();
-
-        }
 
 
     }

@@ -60,6 +60,9 @@ public class PentagonalBoard extends Board {
             boolean isSamePosition = opponentPiece.getPosition() == myPiece.getPosition();
 
             if (!isSameTeam && isSamePosition) {
+                if(myPiece.getPosition()==0&&!opponentPiece.isJustArrived()){
+                    break;
+                }
                 targetNode.remove(opponentPiece);
                 opponentPiece.setPosition(0);
                 opponentPiece.clearPreviousPositions();
@@ -81,8 +84,6 @@ public class PentagonalBoard extends Board {
             }
         }
     }
-
-
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
@@ -112,19 +113,8 @@ public class PentagonalBoard extends Board {
             myPiece.finish();
             myPiece.setWaitingForFinish(false);
 
-            // ✅ 그룹 말들도 함께 완주 처리
-            if (myPiece.getGroupId() != -1) {
-                for (Piece grouped : myPiece.getGroupedPieces()) {
-                    if (grouped != myPiece && !grouped.isFinished()) {
-                        nodes.get(grouped.getPosition()).remove(grouped); // 노드에서 제거
-                        grouped.finish();
-                    }
-                }
-            }
-
             return;
         }
-
 
         // 빽도
         // 빽도 처리
@@ -169,20 +159,9 @@ public class PentagonalBoard extends Board {
 
                 return;
             } else {
-                // 0번 지나침 → 완주
-                System.out.println("0번 도착했지만 이동 남음 → 완주");
-                myPiece.setJustArrived(false);
-                myPiece.finish();
-
-                // ✅ 그룹 말들도 함께 완주 처리
-                if (myPiece.getGroupId() != -1) {
-                    for (Piece grouped : myPiece.getGroupedPieces()) {
-                        if (grouped != myPiece && !grouped.isFinished()) {
-                            grouped.finish();
-                        }
-                    }
-                }
-
+                System.out.println("뒤로 갈 수 없음");
+                myPiece.setWaitingForFinish(true);
+                nodes.get(position).add(myPiece);
                 return;
             }
         }
@@ -196,21 +175,7 @@ public class PentagonalBoard extends Board {
                 myPiece.setPosition(1); // 0 → 1
                 myPiece.pushPreviousPosition(0);
                 yutValue--; // 이미 1칸 이동했으므로 감소
-
-                // ✅ 그룹 말도 같이 이동
-                if (myPiece.getGroupId() == 1) {
-                    for (Piece grouped : myPiece.getGroupedPieces()) {
-                        if (grouped != myPiece && !grouped.isFinished()) {
-                            nodes.get(0).remove(grouped);
-                            grouped.setPosition(1);
-                            grouped.pushPreviousPosition(0);
-                        }
-                    }
-                }
             }
-
-            if (myPiece.isFinished())
-                return;
 
             position = myPiece.getPosition();
             Node currentNode = nodes.get(position);
@@ -271,8 +236,6 @@ public class PentagonalBoard extends Board {
 
 
                         }
-                        myPiece.finish();
-                        break;
                     }
                 }
                 if(position==32){
@@ -289,7 +252,6 @@ public class PentagonalBoard extends Board {
                     nodes.get(position).add(myPiece);       //노드 정보도 갱신 필요
                 }
 
-                System.out.println("이동 후 말 위치: " + position);
             }}
 
         // 말 위치 등록
@@ -303,6 +265,16 @@ public class PentagonalBoard extends Board {
                     grouped.setJustArrived(true);
                 }
             }
+        }
+        if(position==36){
+            myPiece.finish();
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                if (grouped != myPiece) {
+                    grouped.setJustArrived(false);
+                    grouped.finish();
+                }
+            }
+
         }
 
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
@@ -319,18 +291,6 @@ public class PentagonalBoard extends Board {
                     grouped.setJustArrived(true);  // ✅ 여기 중요
                 }
             }
-        }
-
-        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty())
-        {
-            System.out.println("승리 (위치 " + position + ")");
-            if (myPiece.getGroupId() == 1) {
-                for (Piece grouped : myPiece.getGroupedPieces()) {
-                    grouped.finish();
-                }
-            }
-            myPiece.finish();
-
         }
 
     }
