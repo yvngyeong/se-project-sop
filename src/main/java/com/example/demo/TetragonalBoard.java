@@ -125,8 +125,6 @@ public class TetragonalBoard extends Board {
                 } else {
                     nodes.get(position).remove(myPiece);
                 }
-
-
                 myPiece.setPosition(prev);            // ✅ 먼저 위치를 갱신해줘야 함!!
                 if (prev == 0) {
                     myPiece.setJustArrived(true);
@@ -147,8 +145,6 @@ public class TetragonalBoard extends Board {
             }
 
             return; // ⛔ 중복 방지용
-
-
         }
 
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
@@ -224,36 +220,18 @@ public class TetragonalBoard extends Board {
             myPiece.setJustArrived(true);
         }
 
-        // 먼저 그룹 전체를 같은 위치로 업데이트 (❗ 이게 핵심!)
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                grouped.setPosition(position);
-            }
-        }
-
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
         handleCaptureAndGroup(myPiece, nodes.get(position));
 
-       // ✅ 그룹 말 이동 동기화
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    nodes.get(grouped.getPosition()).remove(grouped);
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
-                }
+        // ✅ 그룹 이동 처리 (그룹핑 후 최신 상태 기준)
+        for (Piece grouped : myPiece.getGroupedPieces()) {
+            if (grouped != myPiece && !grouped.isFinished()) {
+                nodes.get(grouped.getPosition()).remove(grouped);
+                grouped.setPosition(position);
+                nodes.get(position).add(grouped);
             }
         }
 
-        if (myPiece.getGroupId() == 1) {
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    nodes.get(grouped.getPosition()).remove(grouped);
-                    grouped.setPosition(position);
-                    nodes.get(position).add(grouped);
-                }
-            }
-        }
 
     }
 
