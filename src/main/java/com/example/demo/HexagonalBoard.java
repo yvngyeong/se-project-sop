@@ -49,6 +49,40 @@ public class HexagonalBoard extends Board {
 
     }
 
+    private void handleCaptureAndGroup(Piece myPiece, Node targetNode) {
+        List<Piece> pieces = new ArrayList<>(targetNode.getOwnedPieces());
+
+        for (Piece opponentPiece : pieces) {
+            if (opponentPiece == myPiece) continue;
+            if (opponentPiece.isFinished()) continue;
+
+            boolean isSameTeam = opponentPiece.getOwnerId() == myPiece.getOwnerId();
+            boolean isSamePosition = opponentPiece.getPosition() == myPiece.getPosition();
+
+            if (!isSameTeam && isSamePosition) {
+                targetNode.remove(opponentPiece);
+                opponentPiece.setPosition(0);
+                opponentPiece.clearPreviousPositions();
+                opponentPiece.clearGroup();
+                opponentPiece.setJustArrived(false);
+                nodes.get(0).add(opponentPiece);
+                isCatched = true;
+                System.out.println("상대 팀 말 잡음!");
+            } else if (isSameTeam && isSamePosition) {
+                if (myPiece.getPosition() == 0) {
+                    if (myPiece.isJustArrived() && opponentPiece.isJustArrived()) {
+                        myPiece.grouping(opponentPiece);
+                        System.out.println("0번 노드 그룹핑 (둘 다 justArrived)");
+                    }
+                } else {
+                    myPiece.grouping(opponentPiece);
+                    System.out.println("그룹핑함");
+                }
+            }
+        }
+    }
+
+
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
 
@@ -66,16 +100,23 @@ public class HexagonalBoard extends Board {
 
             if (prev != -1) // 뒤로 갈 수 있을 때
             {
-                position = prev;
-                System.out.println("빽도"); // 테스트용으로 써본겁니다
+                System.out.println("빽도");
+
+                myPiece.setPosition(prev);
+                if (prev == 0) {
+                    myPiece.setJustArrived(true);
+                }
+
+                Node targetNode = nodes.get(prev);
+                handleCaptureAndGroup(myPiece, targetNode);
+                targetNode.add(myPiece);
+                return;
             } else // 시작지점일때
             {
-                System.out.println("뒤로 갈 수 없음"); // 테스트용으로 써본겁니다
+                System.out.println("뒤로 갈 수 없음");
+                nodes.get(position).add(myPiece);
+                return;
             }
-            myPiece.setPosition(position);
-            nodes.get(position).add(myPiece);
-            isBackdo = true;
-
         }
         // 0에서 처음 출발할 경우 → 임시로 0 → 1 연결해 이동시키기
 
