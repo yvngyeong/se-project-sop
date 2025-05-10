@@ -321,6 +321,18 @@ public class PentagonalBoard extends Board {
             }
         }
 
+        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty())
+        {
+            System.out.println("승리 (위치 " + position + ")");
+            if (myPiece.getGroupId() == 1) {
+                for (Piece grouped : myPiece.getGroupedPieces()) {
+                    grouped.finish();
+                }
+            }
+            myPiece.finish();
+
+        }
+
     }
     public boolean isCatched() {
         return isCatched;

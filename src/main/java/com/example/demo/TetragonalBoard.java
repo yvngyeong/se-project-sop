@@ -103,9 +103,23 @@ public class TetragonalBoard extends Board {
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
 
+        int position = myPiece.getPosition();
+        if (edges.get(position).isEmpty()) {
+            // (그룹이 있으면 그룹도 함께 finish)
+            if (myPiece.getGroupId() == 1) {
+                for (Piece g : myPiece.getGroupedPieces()) {
+                    if (!g.isFinished()) g.finish();
+                }
+            }
+            if (!myPiece.isFinished()) {
+                System.out.println("승리 (위치 " + position + ")");
+                myPiece.finish();
+            }
+            return;
+        }
+
         isCatched = false;
         isBackdo = false;
-        int position = myPiece.getPosition();
 
         // ✅ 0번에 있고 이전에 백도로 온 경우 → 다른 윷값 나오면 완주 처리
         if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
@@ -293,6 +307,18 @@ public class TetragonalBoard extends Board {
                     grouped.setJustArrived(true);  // ✅ 여기 중요
                 }
             }
+        }
+
+        if (!myPiece.isFinished() && !isBackdo&&edges.get(position).isEmpty())
+        {
+            System.out.println("승리 (위치 " + position + ")");
+            if (myPiece.getGroupId() == 1) {
+                for (Piece grouped : myPiece.getGroupedPieces()) {
+                    grouped.finish();
+                }
+            }
+            myPiece.finish();
+
         }
 
 
