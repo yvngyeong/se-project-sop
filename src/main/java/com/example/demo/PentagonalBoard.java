@@ -92,9 +92,21 @@ public class PentagonalBoard extends Board {
 
         // 백도로 0번 도착 후 다음 이동 → 완주 처리
         if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
-            System.out.println("🎯 백도 후 첫 이동 → 완주 처리");
+            System.out.println(" 백도 후 첫 이동 → 완주 처리");
+            List<Piece> groupedCopy = new ArrayList<>(myPiece.getGroupedPieces()); // ✅ 백업 먼저
             myPiece.finish();
             myPiece.setWaitingForFinish(false);
+
+            // ✅ 그룹 말들도 함께 완주 처리
+            if (myPiece.getGroupId() != -1) {
+                for (Piece grouped : myPiece.getGroupedPieces()) {
+                    if (grouped != myPiece && !grouped.isFinished()) {
+                        nodes.get(grouped.getPosition()).remove(grouped); // 노드에서 제거
+                        grouped.finish();
+                    }
+                }
+            }
+
             return;
         }
 
@@ -142,9 +154,20 @@ public class PentagonalBoard extends Board {
 
                 return;
             } else {
-                System.out.println("뒤로 갈 수 없음");
-                myPiece.setWaitingForFinish(true);
-                nodes.get(position).add(myPiece);
+                // 0번 지나침 → 완주
+                System.out.println("0번 도착했지만 이동 남음 → 완주");
+                myPiece.setJustArrived(false);
+                myPiece.finish();
+
+                // ✅ 그룹 말들도 함께 완주 처리
+                if (myPiece.getGroupId() != -1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        if (grouped != myPiece && !grouped.isFinished()) {
+                            grouped.finish();
+                        }
+                    }
+                }
+
                 return;
             }
         }
@@ -158,6 +181,17 @@ public class PentagonalBoard extends Board {
                 myPiece.setPosition(1); // 0 → 1
                 myPiece.pushPreviousPosition(0);
                 yutValue--; // 이미 1칸 이동했으므로 감소
+
+                // ✅ 그룹 말도 같이 이동
+                if (myPiece.getGroupId() == 1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        if (grouped != myPiece && !grouped.isFinished()) {
+                            nodes.get(0).remove(grouped);
+                            grouped.setPosition(1);
+                            grouped.pushPreviousPosition(0);
+                        }
+                    }
+                }
             }
 
             if (myPiece.isFinished())
