@@ -44,7 +44,17 @@ public class GroupedPieceComponent extends JComponent {
         if (pieces.isEmpty()) return;
 
         int ownerId = pieces.get(0).getOwnerId();
-        g.setColor(ownerId == 1 ? Color.BLUE : Color.RED);
+
+        Color color;
+        switch (ownerId) {
+            case 1 -> color = Color.BLUE;
+            case 2 -> color = Color.GREEN;
+            case 3 -> color = Color.ORANGE;
+            case 4 -> color = Color.RED;
+            default -> color = Color.GRAY;
+        }
+        g.setColor(color);
+
         g.fillOval(5, 5, 30, 30);
 
         g.setColor(Color.WHITE);
