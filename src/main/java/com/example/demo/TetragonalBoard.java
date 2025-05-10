@@ -118,6 +118,15 @@ public class TetragonalBoard extends Board {
             if (prev != -1) // 뒤로 갈 수 있을 때
             {
                 System.out.println("빽도");
+                if (myPiece.getGroupId() != -1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        nodes.get(grouped.getPosition()).remove(grouped);
+                    }
+                } else {
+                    nodes.get(position).remove(myPiece);
+                }
+
+
                 myPiece.setPosition(prev);            // ✅ 먼저 위치를 갱신해줘야 함!!
                 if (prev == 0) {
                     myPiece.setJustArrived(true);
@@ -126,10 +135,15 @@ public class TetragonalBoard extends Board {
 
                 handleCaptureAndGroup(myPiece, targetNode); // ✅ 이제 정확한 위치 기반으로 잡기 검사 가능
                 targetNode.add(myPiece);
-            } else // 시작지점일때
-            {
-                System.out.println("뒤로 갈 수 없음");
-                nodes.get(position).add(myPiece); // 그대로 다시 원위치// 테스트용으로 써본겁니다
+                if (myPiece.getGroupId() != -1) {
+                    for (Piece grouped : myPiece.getGroupedPieces()) {
+                        if (grouped != myPiece && !grouped.isFinished()) {
+                            nodes.get(grouped.getPosition()).remove(grouped);
+                            grouped.setPosition(prev);
+                            nodes.get(position).add(grouped);
+                        }
+                    }
+                }
             }
 
             return; // ⛔ 중복 방지용
