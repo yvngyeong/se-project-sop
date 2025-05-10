@@ -55,6 +55,50 @@ public class TetragonalBoard extends Board {
 
     }
 
+    private void handleCaptureAndGroup(Piece myPiece, Node targetNode) {
+        List<Piece> pieces = new ArrayList<>(targetNode.getOwnedPieces());
+
+        for (Piece opponentPiece : pieces) {
+            if (opponentPiece == myPiece) continue; // 자기 자신은 제외
+            if (opponentPiece.isFinished()) continue; // 이미 완주한 말은 제외
+
+            boolean isSameTeam = opponentPiece.getOwnerId() == myPiece.getOwnerId();
+            boolean isSamePosition = opponentPiece.getPosition() == myPiece.getPosition();
+            boolean isNotFinished = !opponentPiece.isFinished();
+
+            // ✅ 1. 상대 팀이면 무조건 잡는다 (위치가 같고, 안 끝났으면)
+            if (!isSameTeam && isSamePosition && isNotFinished) {
+                targetNode.remove(opponentPiece);
+                opponentPiece.setPosition(0);
+                opponentPiece.clearPreviousPositions();
+                opponentPiece.clearGroup();
+                nodes.get(0).add(opponentPiece);
+                isCatched = true;
+                System.out.println("상대 팀 말 잡음!");
+            }
+
+            // ✅ 2. 같은 팀이면 그룹핑
+            else if (isSameTeam && isSamePosition) {
+
+                // 0번 노드인 경우: 동시에 도착한 경우만 그룹핑 허용
+                if (myPiece.getPosition() == 0) {
+                    if (myPiece.isJustArrived() && opponentPiece.isJustArrived()) {
+                        myPiece.grouping(opponentPiece);
+                        System.out.println("0번 노드에서 그룹핑함 (둘 다 방금 도착)");
+                    }
+                }
+
+                // 0번 아닌 경우: 그냥 그룹핑
+                else {
+                    myPiece.grouping(opponentPiece);
+                    System.out.println("그룹핑함");
+                }
+            }
+        }
+    }
+
+
+
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
 
@@ -72,15 +116,22 @@ public class TetragonalBoard extends Board {
 
             if (prev != -1) // 뒤로 갈 수 있을 때
             {
-                position = prev;
-                System.out.println("빽도"); // 테스트용으로 써본겁니다
+                System.out.println("빽도");
+                myPiece.setPosition(prev);            // ✅ 먼저 위치를 갱신해줘야 함!!
+                if (prev == 0) {
+                    myPiece.setJustArrived(true);
+                }
+                Node targetNode = nodes.get(prev);
+
+                handleCaptureAndGroup(myPiece, targetNode); // ✅ 이제 정확한 위치 기반으로 잡기 검사 가능
+                targetNode.add(myPiece);
             } else // 시작지점일때
             {
-                System.out.println("뒤로 갈 수 없음"); // 테스트용으로 써본겁니다
+                System.out.println("뒤로 갈 수 없음");
+                nodes.get(position).add(myPiece); // 그대로 다시 원위치// 테스트용으로 써본겁니다
             }
-            myPiece.setPosition(position);
-            nodes.get(position).add(myPiece);
-            isBackdo = true;
+
+            return; // ⛔ 중복 방지용
 
 
         }
@@ -157,10 +208,11 @@ public class TetragonalBoard extends Board {
         for (int i = 0; i < pieces.size(); i++)
         {
             Piece opponentPiece = pieces.get(i);
+            if (opponentPiece == myPiece) continue;
 
             if (opponentPiece.isFinished()) continue;//끝나면 잡을 수 없음
 
-            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId() )&& opponentPiece.getPosition() !=0) // 같은 플레이어의 말이 아닐때 -> 잡기
+            if ((opponentPiece.getOwnerId() != myPiece.getOwnerId() )&& opponentPiece.getPosition() !=-1) // 같은 플레이어의 말이 아닐때 -> 잡기
             {
                 nextNode.remove(pieces.get(i));
                 opponentPiece.setPosition(0);
