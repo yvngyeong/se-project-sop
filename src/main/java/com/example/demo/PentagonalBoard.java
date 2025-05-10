@@ -86,9 +86,24 @@ public class PentagonalBoard extends Board {
 
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
+
+        int position = myPiece.getPosition();
+        if (edges.get(position).isEmpty()) {
+            // (그룹이 있으면 그룹도 함께 finish)
+            if (myPiece.getGroupId() == 1) {
+                for (Piece g : myPiece.getGroupedPieces()) {
+                    if (!g.isFinished()) g.finish();
+                }
+            }
+            if (!myPiece.isFinished()) {
+                System.out.println("승리 (위치 " + position + ")");
+                myPiece.finish();
+            }
+            return;
+        }
+
         isCatched=false;
         isBackdo = false;
-        int position = myPiece.getPosition();
 
         // 백도로 0번 도착 후 다음 이동 → 완주 처리
         if (position == 0 && myPiece.isWaitingForFinish() && yutValue != -1) {
@@ -283,6 +298,11 @@ public class PentagonalBoard extends Board {
 
         if (position == 0) {
             myPiece.setJustArrived(true);
+            for (Piece grouped : myPiece.getGroupedPieces()) {
+                if (grouped != myPiece && !grouped.isFinished()) {
+                    grouped.setJustArrived(true);
+                }
+            }
         }
 
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
