@@ -152,18 +152,17 @@ public class TetragonalBoard extends Board {
                         if (grouped != myPiece && !grouped.isFinished()) {
                             nodes.get(grouped.getPosition()).remove(grouped);
 
-                            int groupedPrev = grouped.popPreviousPosition();
-                            if (groupedPrev != -1) {
-                                grouped.setPosition(groupedPrev);
-                                nodes.get(groupedPrev).add(grouped);
-                                if (groupedPrev == 0) {
-                                    grouped.setJustArrived(true);
+                            grouped.popPreviousPosition(); // ✅ 스택 정리만
+                            grouped.setPosition(prev);     // ✅ leader와 동일한 prev 적용
+                            nodes.get(prev).add(grouped);
 
-                                }
+                            if (prev == 0) {
+                                grouped.setJustArrived(true);
                             }
                         }
                     }
                 }
+
 
                 return;
             } else {
@@ -290,15 +289,17 @@ public class TetragonalBoard extends Board {
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
         handleCaptureAndGroup(myPiece, nodes.get(position));
 
-        // ✅ 그룹 이동 처리 (그룹핑 후 최신 상태 기준)
+        // ✅ 그룹 이동 처리 (그룹핑 후 최신 상태 기준 + previous 동기화)
         for (Piece grouped : myPiece.getGroupedPieces()) {
             if (grouped != myPiece && !grouped.isFinished()) {
                 nodes.get(grouped.getPosition()).remove(grouped);
+
+                grouped.pushPreviousPosition(grouped.getPosition()); // ✅ 현재 위치를 이전 위치로 저장
                 grouped.setPosition(position);
                 nodes.get(position).add(grouped);
 
                 if (position == 0) {
-                    grouped.setJustArrived(true);  // ✅ 여기 중요
+                    grouped.setJustArrived(true);
                 }
             }
         }
