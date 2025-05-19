@@ -19,12 +19,16 @@ public class GameController {
     private Integer selectedYut=null;  //사용자가 선택한 윷 결과
     private boolean randomYutButtonCreated = false;
 
-
     public GameController(Game game, GameView gameView) {
         System.out.println("GameController 초기화 시작");
         this.game = game;
         this.gameView = gameView;
         System.out.println("GameView 생성 완료");
+
+        // ———— 초기 플레이어 정보 표시 ————
+        gameView.updateCurrentPlayer(getCurrentPlayer().getId());
+
+        // ———— 리스타트 콜백 등록 ————
         gameView.setRestartCallback(this::restart);
 
 
@@ -62,10 +66,12 @@ public class GameController {
 
             });
         }
-        //gameView.setStatus("윷을 던지세요.");
-        gameView.initPieceComponents(game.getPlayers(), piece -> selectPiece(piece));
 
+        // ———— 말 컴포넌트 초기화 ————
+        gameView.initPieceComponents(game.getPlayers(), piece -> selectPiece(piece));
     }
+
+
     private void processYutResult(int result){
         yutQueue.add(result);
         gameView.showYutResult(result);
