@@ -284,7 +284,7 @@ public class PentagonalBoard extends Board {
             if (grouped != myPiece && !grouped.isFinished()) {
                 nodes.get(grouped.getPosition()).remove(grouped);
 
-                grouped.pushPreviousPosition(grouped.getPosition()); // ✅ 현재 위치를 이전 위치로 저장
+                grouped.pushPreviousPosition(myPiece.peekPreviousPosition()); // ✅ 현재 위치를 이전 위치로 저장
                 grouped.setPosition(position);
                 nodes.get(position).add(grouped);
 

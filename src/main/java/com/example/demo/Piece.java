@@ -103,6 +103,10 @@ public class Piece {
         posStack.push(pos);
     }
 
+    public int peekPreviousPosition() {
+        return posStack.peek();
+    }
+
     public int popPreviousPosition() {
         if (!posStack.isEmpty()) {
             return posStack.pop();
