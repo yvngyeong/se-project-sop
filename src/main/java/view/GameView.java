@@ -35,12 +35,15 @@ public class GameView extends JFrame {
         this.restartCallback = restartCallback;
     }
 
+    private Component yutStrut;
+
 
 
 
     public GameView(Game game) {
         setTitle("윷놀이 게임");
         setSize(800, 600);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -229,6 +232,16 @@ public class GameView extends JFrame {
 
     // 필요할 때 호출
     public void createYutButtons() {
+
+        if (yutStrut != null) {
+            rightPanel.remove(yutStrut);
+        }
+        // (2) 이전 버튼 패널도 지우기
+        if (yutButtonPanel != null) {
+            rightPanel.remove(yutButtonPanel);
+        }
+        yutStrut = Box.createVerticalStrut(10);
+
         yutButtonPanel = new JPanel();
         yutButtonPanel.setLayout(new GridLayout(2, 3, 5, 5));
         yutButtonPanel.setMaximumSize(new Dimension(250, 100));
@@ -246,14 +259,19 @@ public class GameView extends JFrame {
             });
             yutButtonPanel.add(btn);
         }
-
-        rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(yutStrut);
         rightPanel.add(yutButtonPanel);
         rightPanel.revalidate();
         rightPanel.repaint();
     }
 
     public void createRandomYutButtons(){
+
+        if (yutStrut != null) rightPanel.remove(yutStrut);
+        if (yutButtonPanel != null) rightPanel.remove(yutButtonPanel);
+
+        yutStrut = Box.createVerticalGlue();
+
         // 윷 던지기 버튼
         throwButton = new JButton("윷 던지기");
         throwButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -268,8 +286,10 @@ public class GameView extends JFrame {
             }
         });
 
-        rightPanel.add(Box.createVerticalGlue()); // 아래로 밀기
+        rightPanel.add(yutStrut);
         rightPanel.add(buttonPanel);
+        rightPanel.revalidate();
+        rightPanel.repaint();
     }
     public String getYutName(int result) {
         return switch (result) {
@@ -283,9 +303,16 @@ public class GameView extends JFrame {
         };
     }
     public void showYutResultButtons(List<Integer> yutQueue, SelectThrowListener listener) {
+
+        if (yutStrut != null) {
+            rightPanel.remove(yutStrut);
+        }
+
         if (yutButtonPanel != null) {
             rightPanel.remove(yutButtonPanel);
         }
+
+        yutStrut = Box.createVerticalStrut(10);
 
         yutButtonPanel = new JPanel(new FlowLayout());
         yutButtonPanel.setMaximumSize(new Dimension(250, 50));
@@ -299,15 +326,20 @@ public class GameView extends JFrame {
             });
             yutButtonPanel.add(btn);
         }
-
+        rightPanel.add(yutStrut);
         rightPanel.add(yutButtonPanel);
         rightPanel.revalidate();
         rightPanel.repaint();
     }
     public void showThrowButtonAgain(boolean isTestYut) {
+
+        if (yutStrut != null) {
+            rightPanel.remove(yutStrut);
+        }
+
         if (yutButtonPanel != null) {
             rightPanel.remove(yutButtonPanel);
-            yutButtonPanel = null;
+            yutButtonPanel = null;  ///?????
         }
 
         if (isTestYut) {
