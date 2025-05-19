@@ -105,6 +105,11 @@ public class GameController {
         isThrowing = true;
         selectedPiece = null;
 
+        for (Piece piece : getCurrentPlayer().getPieces()) {
+            piece.setWaitingForFinish(false); // 다음 턴 시작할 때 리셋
+        }
+
+
         gameView.updateCurrentPlayer(getCurrentPlayer().getId());
         gameView.setStatus("윷을 던져주세요.");
         //gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);  //윷 던지기 버튼 다시 호출
