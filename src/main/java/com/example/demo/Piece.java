@@ -86,6 +86,12 @@ public class Piece {
                 this.groupPieces.add(p);
             }
         }
+        // B <- A  ← 이게 빠져있었음
+        for (Piece p : this.groupPieces) {
+            if (!otherPiece.groupPieces.contains(p)) {
+                otherPiece.groupPieces.add(p);
+            }
+        }
         if (!this.groupPieces.contains(otherPiece)) {
             this.groupPieces.add(otherPiece);
         }
