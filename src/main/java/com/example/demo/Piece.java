@@ -92,6 +92,12 @@ public class Piece {
         if (!otherPiece.groupPieces.contains(this)) {
             otherPiece.groupPieces.add(this);
         }
+        for (Piece p : this.groupPieces) {
+            if (p != this) {
+                this.copyStackTo(p);
+            }
+        }
+
         System.out.println("   ↪️ 그룹 크기: " + this.groupPieces.size());
     }
 
@@ -141,6 +147,10 @@ public class Piece {
         this.justArrived = justArrived;
     }
 
+    public void copyStackTo(Piece target) {
+        target.posStack.clear();
+        target.posStack.addAll(this.posStack);
+    }
 }
 
 

@@ -132,6 +132,7 @@ public class TetragonalBoard extends Board {
             int prev = myPiece.popPreviousPosition(); // 본인의 이전 위치
             nodes.get(position).remove(myPiece);
 
+
             if (prev != -1) {
                 System.out.println("빽도");
 
@@ -141,29 +142,23 @@ public class TetragonalBoard extends Board {
                     myPiece.setWaitingForFinish(true);
 
                 }
-
                 Node targetNode = nodes.get(prev);
                 handleCaptureAndGroup(myPiece, targetNode);
                 targetNode.add(myPiece);
-
 
                 if (myPiece.getGroupId() != -1) {
                     for (Piece grouped : myPiece.getGroupedPieces()) {
                         if (grouped != myPiece && !grouped.isFinished()) {
                             nodes.get(grouped.getPosition()).remove(grouped);
-
-                            grouped.popPreviousPosition(); // ✅ 스택 정리만
-                            grouped.setPosition(prev);     // ✅ leader와 동일한 prev 적용
+                            grouped.popPreviousPosition(); // 스택 정리만
+                            grouped.setPosition(prev);     // leader와 동일한 prev 적용
                             nodes.get(prev).add(grouped);
-
                             if (prev == 0) {
                                 grouped.setJustArrived(true);
                             }
                         }
                     }
                 }
-
-
                 return;
             } else {
                 System.out.println("뒤로 갈 수 없음");
@@ -267,24 +262,6 @@ public class TetragonalBoard extends Board {
         myPiece.setPosition(position);
         nodes.get(position).add(myPiece);
 
-        if (position == 0) {
-            myPiece.setJustArrived(true);
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece && !grouped.isFinished()) {
-                    grouped.setJustArrived(true);
-                }
-            }
-        }
-        if(position==29){
-            myPiece.finish();
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    grouped.setJustArrived(false);
-                    grouped.finish();
-                }
-            }
-
-        }
 
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
         handleCaptureAndGroup(myPiece, nodes.get(position));
@@ -300,6 +277,10 @@ public class TetragonalBoard extends Board {
 
                 if (position == 0) {
                     grouped.setJustArrived(true);
+                }
+                else if (position== 29){
+                    grouped.setJustArrived(false);
+                    grouped.finish();
                 }
             }
         }

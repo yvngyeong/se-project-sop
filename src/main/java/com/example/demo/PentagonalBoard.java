@@ -144,8 +144,6 @@ public class PentagonalBoard extends Board {
                     for (Piece grouped : myPiece.getGroupedPieces()) {
                         if (grouped != myPiece && !grouped.isFinished()) {
                             nodes.get(grouped.getPosition()).remove(grouped);
-
-                            grouped.popPreviousPosition(); // ✅ 스택 정리만
                             grouped.setPosition(prev);     // ✅ leader와 동일한 prev 적용
                             nodes.get(prev).add(grouped);
 
@@ -258,24 +256,6 @@ public class PentagonalBoard extends Board {
         myPiece.setPosition(position);
         nodes.get(position).add(myPiece);
 
-        if (position == 0) {
-            myPiece.setJustArrived(true);
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece && !grouped.isFinished()) {
-                    grouped.setJustArrived(true);
-                }
-            }
-        }
-        if(position==36){
-            myPiece.finish();
-            for (Piece grouped : myPiece.getGroupedPieces()) {
-                if (grouped != myPiece) {
-                    grouped.setJustArrived(false);
-                    grouped.finish();
-                }
-            }
-        }
-
         // ✅ 잡기 & 그룹핑 통합 처리 (핸들 함수 호출)
         handleCaptureAndGroup(myPiece, nodes.get(position));
 
@@ -290,6 +270,10 @@ public class PentagonalBoard extends Board {
 
                 if (position == 0) {
                     grouped.setJustArrived(true);
+                }
+                else if (position==36){
+                    grouped.setJustArrived(false);
+                    grouped.finish();
                 }
             }
         }
