@@ -144,6 +144,13 @@ public class GameController {
             return;
         }
 
+        if(selectedYut==-1&&getCurrentPlayer().hasPiecesOnBoard()){
+            if(piece.getPosition()==0&&!piece.isJustArrived()){
+                gameView.setStatus("이미 판위에 말이 있습니다.");
+                return;
+            }
+        }
+
         selectedPiece = piece;
 
         if (!yutQueue.isEmpty()) {

@@ -86,13 +86,34 @@ public class Piece {
                 this.groupPieces.add(p);
             }
         }
+        // B <- A  ← 이게 빠져있었음
+        for (Piece p : this.groupPieces) {
+            if (!otherPiece.groupPieces.contains(p)) {
+                otherPiece.groupPieces.add(p);
+            }
+        }
         if (!this.groupPieces.contains(otherPiece)) {
             this.groupPieces.add(otherPiece);
         }
         if (!otherPiece.groupPieces.contains(this)) {
             otherPiece.groupPieces.add(this);
         }
+        for (Piece p : this.groupPieces) {
+            if (p != this) {
+                this.copyStackTo(p);
+            }
+        }
+
         System.out.println("   ↪️ 그룹 크기: " + this.groupPieces.size());
+
+
+        //posStack 동기화
+        Stack<Integer> sync = (Stack<Integer>) this.posStack.clone();
+        for (Piece p : this.groupPieces) {
+            Stack<Integer> clone = (Stack<Integer>) sync.clone();
+            p.posStack = clone;
+        }
+
     }
 
     public List<Piece> getGroupedPieces() {
@@ -141,6 +162,10 @@ public class Piece {
         this.justArrived = justArrived;
     }
 
+    public void copyStackTo(Piece target) {
+        target.posStack.clear();
+        target.posStack.addAll(this.posStack);
+    }
 }
 
 

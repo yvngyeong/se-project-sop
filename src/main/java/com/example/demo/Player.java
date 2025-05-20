@@ -100,4 +100,18 @@ public class Player {
     public void addPiece(Piece piece) {
         pieces.add(piece);
     }
+
+    public boolean hasPiecesOnBoard(){
+        boolean result = false;
+        for(Piece piece: getPieces()){
+            if(piece.isFinished()){
+                continue;
+            }
+            if(piece.getPosition()==0&&!piece.isJustArrived()) {
+                continue;
+            }
+            result = true;
+        }
+        return result;
+    }
 }
