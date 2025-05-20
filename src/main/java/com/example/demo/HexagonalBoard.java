@@ -240,6 +240,7 @@ public class HexagonalBoard extends Board {
                 }
                 myPiece.pushPreviousPosition(prev2);
                 myPiece.pushPreviousPosition(prev1);
+
                 myPiece.setPosition(position);
                 nodes.get(position).add(myPiece);   //노드 정보도 갱신 필요
             }
@@ -285,7 +286,6 @@ public class HexagonalBoard extends Board {
                 }
             }
         }
-
 
 
     }
