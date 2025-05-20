@@ -286,6 +286,10 @@ public class HexagonalBoard extends Board {
                 if (position == 0) {
                     grouped.setJustArrived(true);
                 }
+                else if(position == 43){
+                    grouped.setJustArrived(false);
+                    grouped.finish();
+                }
             }
         }
 
