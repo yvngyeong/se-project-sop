@@ -93,6 +93,15 @@ public class Piece {
             otherPiece.groupPieces.add(this);
         }
         System.out.println("   ↪️ 그룹 크기: " + this.groupPieces.size());
+
+
+        //posStack 동기화
+        Stack<Integer> sync = (Stack<Integer>) this.posStack.clone();
+        for (Piece p : this.groupPieces) {
+            Stack<Integer> clone = (Stack<Integer>) sync.clone();
+            p.posStack = clone;
+        }
+
     }
 
     public List<Piece> getGroupedPieces() {
