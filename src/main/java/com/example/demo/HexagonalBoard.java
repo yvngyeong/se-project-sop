@@ -130,6 +130,8 @@ public class HexagonalBoard extends Board {
                 if (prev == 0) {
                     myPiece.setJustArrived(true);
                     myPiece.setWaitingForFinish(true);
+
+                    myPiece.pushPreviousPosition(1);
                 }
 
                 Node targetNode = nodes.get(prev);

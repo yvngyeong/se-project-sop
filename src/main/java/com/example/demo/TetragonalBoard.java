@@ -141,6 +141,7 @@ public class TetragonalBoard extends Board {
                     myPiece.setJustArrived(true);  // ⬅ View에서 그릴 수 있도록 true
                     myPiece.setWaitingForFinish(true);
 
+                    myPiece.pushPreviousPosition(1);
                 }
                 Node targetNode = nodes.get(prev);
                 handleCaptureAndGroup(myPiece, targetNode);
