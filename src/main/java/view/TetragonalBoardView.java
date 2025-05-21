@@ -1,187 +1,105 @@
 package view;
 
 import com.example.demo.*;
+import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import listener.PieceClickListener;
 
-import javax.swing.*;
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 
 public class TetragonalBoardView extends BoardView {
     private TetragonalBoard board;
-    private Map<Integer, Point> nodePositions;
+    private Map<Integer, Point2D> nodePositions;
 
     public TetragonalBoardView(TetragonalBoard board) {
         this.board = board;
         this.nodePositions = new HashMap<>();
 
-        setPreferredSize(new Dimension(500, 500));
-        setBackground(Color.WHITE);
+        setPrefSize(500, 500);
+        setStyle("-fx-background-color: white;");
 
         setNodePositions();
-        setLayout(null);
+        drawBoard();
     }
 
     private void setNodePositions() {
         int startX = 100;
         int startY = 100;
         int gap = 60;
-
-        // 바깥 테두리 노드 배치 (위쪽 줄)
-        nodePositions.put(10, new Point(startX + 0 * gap, startY + 0 * gap));
-        nodePositions.put(9,  new Point(startX + 1 * gap, startY + 0 * gap));
-        nodePositions.put(8,  new Point(startX + 2 * gap, startY + 0 * gap));
-        nodePositions.put(7,  new Point(startX + 3 * gap, startY + 0 * gap));
-        nodePositions.put(6,  new Point(startX + 4 * gap, startY + 0 * gap));
-        nodePositions.put(5,  new Point(startX + 5 * gap, startY + 0 * gap));
-
-        // 오른쪽 세로줄
-        nodePositions.put(4,  new Point(startX + 5 * gap, startY + 1 * gap));
-        nodePositions.put(3,  new Point(startX + 5 * gap, startY + 2 * gap));
-        nodePositions.put(2,  new Point(startX + 5 * gap, startY + 3 * gap));
-        nodePositions.put(1,  new Point(startX + 5 * gap, startY + 4 * gap));
-
-        // 아래쪽 줄
-        nodePositions.put(0,  new Point(startX + 5 * gap, startY + 5 * gap)); // 출발점
-        nodePositions.put(19, new Point(startX + 4 * gap, startY + 5 * gap));
-        nodePositions.put(18, new Point(startX + 3 * gap, startY + 5 * gap));
-        nodePositions.put(17, new Point(startX + 2 * gap, startY + 5 * gap));
-        nodePositions.put(16, new Point(startX + 1 * gap, startY + 5 * gap));
-        nodePositions.put(15, new Point(startX + 0 * gap, startY + 5 * gap));
-
-        // 왼쪽 세로줄
-        nodePositions.put(14, new Point(startX + 0 * gap, startY + 4 * gap));
-        nodePositions.put(13, new Point(startX + 0 * gap, startY + 3 * gap));
-        nodePositions.put(12, new Point(startX + 0 * gap, startY + 2 * gap));
-        nodePositions.put(11, new Point(startX + 0 * gap, startY + 1 * gap));
-
         int diagonalGap = (int)(gap * 0.75f);
         int offsetX = 30; // 오른쪽으로 이동
         int offsetY = 30; // 아래쪽으로 이동
 
-        // 중심
-        nodePositions.put(20, new Point(startX + 2 * gap + offsetX, startY + 2 * gap + offsetY));
+        int[][] nodeCoords = {
+                {10, 0, 0}, {9, 1, 0}, {8, 2, 0}, {7, 3, 0}, {6, 4, 0}, {5, 5, 0},
+                {4, 5, 1}, {3, 5, 2}, {2, 5, 3}, {1, 5, 4},
+                {0, 5, 5}, {19, 4, 5}, {18, 3, 5}, {17, 2, 5}, {16, 1, 5}, {15, 0, 5},
+                {14, 0, 4}, {13, 0, 3}, {12, 0, 2}, {11, 0, 1},
+                {20, 2 * gap + offsetX, 2 * gap + offsetY},
+                {21, 2 * gap + diagonalGap + offsetX, 2 * gap - diagonalGap + offsetY},
+                {22, 2 * gap + 2 * diagonalGap + offsetX, 2 * gap - 2 * diagonalGap + offsetY},
+                {23, 2 * gap - diagonalGap + offsetX, 2 * gap - diagonalGap + offsetY},
+                {24, 2 * gap - 2 * diagonalGap + offsetX, 2 * gap - 2 * diagonalGap + offsetY},
+                {25, 2 * gap - diagonalGap + offsetX, 2 * gap + diagonalGap + offsetY},
+                {26, 2 * gap - 2 * diagonalGap + offsetX, 2 * gap + 2 * diagonalGap + offsetY},
+                {27, 2 * gap + diagonalGap + offsetX, 2 * gap + diagonalGap + offsetY},
+                {28, 2 * gap + 2 * diagonalGap + offsetX, 2 * gap + 2 * diagonalGap + offsetY},
+        };
 
-        // 대각선 위쪽
-        nodePositions.put(21, new Point(startX + 2 * gap + diagonalGap + offsetX, startY + 2 * gap - diagonalGap + offsetY));
-        nodePositions.put(22, new Point(startX + 2 * gap + 2 * diagonalGap + offsetX, startY + 2 * gap - 2 * diagonalGap + offsetY));
-        nodePositions.put(23, new Point(startX + 2 * gap - diagonalGap + offsetX, startY + 2 * gap - diagonalGap + offsetY));
-        nodePositions.put(24, new Point(startX + 2 * gap - 2 * diagonalGap + offsetX, startY + 2 * gap - 2 * diagonalGap + offsetY));
-
-        // 대각선 아래쪽
-        nodePositions.put(25, new Point(startX + 2 * gap - diagonalGap + offsetX, startY + 2 * gap + diagonalGap + offsetY));
-        nodePositions.put(26, new Point(startX + 2 * gap - 2 * diagonalGap + offsetX, startY + 2 * gap + 2 * diagonalGap + offsetY));
-        nodePositions.put(27, new Point(startX + 2 * gap + diagonalGap + offsetX, startY + 2 * gap + diagonalGap + offsetY));
-        nodePositions.put(28, new Point(startX + 2 * gap + 2 * diagonalGap + offsetX, startY + 2 * gap + 2 * diagonalGap + offsetY));
+        for (int[] data : nodeCoords) {
+            int id = data[0];
+            Point2D pos = new Point2D(data[1] * gap + startX, data[2] * gap + startY);
+            nodePositions.put(id, pos);
+    }
 
     }
 
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        drawEdges((Graphics2D) g); // 선 그리기 호출
-        drawBoard((Graphics2D) g);
+    private void drawBoard() {
+        int[][] edges = {
+                {10, 9}, {9, 8}, {8, 7}, {7, 6}, {6, 5}, {5, 4}, {4, 3}, {3, 2}, {2, 1}, {1, 0},
+                {0, 19}, {19, 18}, {18, 17}, {17, 16}, {16, 15}, {15, 14}, {14, 13}, {13, 12}, {12, 11}, {11, 10},
+                {5, 22}, {10, 24}, {24, 23}, {23, 20}, {20, 25}, {25, 26}, {20, 27}, {27, 28},
+                {21, 22}, {21, 20}, {26, 15}, {28, 0}
+        };
 
-    }
-
-    private void drawBoard(Graphics2D g2) {
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        for (int[] edge : edges) {
+            Point2D from = nodePositions.get(edge[0]);
+            Point2D to = nodePositions.get(edge[1]);
+            if (from != null && to != null) {
+                Line line = new Line(from.getX(), from.getY(), to.getX(), to.getY());
+                line.setStroke(Color.BLACK);
+                line.setStrokeWidth(2);
+                getChildren().add(line);
+            }
+        }
 
         for (Node node : board.getNodes()) {
-            Point p = nodePositions.get(node.getNodeID());
+            Point2D p = nodePositions.get(node.getNodeID());
             if (p == null) continue;
 
-            boolean isCorner = (node instanceof CornerNode);
+            Circle circle = new Circle(p.getX(), p.getY(), 15);
+            circle.setFill(Color.LIGHTGRAY);
+            circle.setStroke(Color.BLACK);
 
-            if (isCorner) {
-                g2.setColor(Color.LIGHT_GRAY);
-                g2.fillOval(p.x - 15, p.y - 15, 30, 30);
-                g2.setColor(Color.BLACK);
-                g2.drawOval(p.x - 15, p.y - 15, 30, 30); // 바깥 원
-                g2.drawOval(p.x - 10, p.y - 10, 20, 20); // 안쪽 원
-            } else {
-                g2.setColor(Color.LIGHT_GRAY);
-                g2.fillOval(p.x - 15, p.y - 15, 30, 30);
-                g2.setColor(Color.BLACK);
-                g2.drawOval(p.x - 15, p.y - 15, 30, 30);
-            }
-
-            // 노드 번호 및 말 개수 표시
-            g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            //String label = node.getNodeID() + " (" + node.getOwnedPieces().size() + ")";   노드 번호 + 말 갯수 표시
-            //String label = String.valueOf(node.getNodeID()); //노드 번호만 표시
-            //g2.drawString(label, p.x - 15, p.y + 30);
+            getChildren().add(circle);
         }
     }
 
 
-    private void drawEdges(Graphics2D g2) {
-        g2.setColor(Color.BLACK); // 선 색상
-        g2.setStroke(new BasicStroke(2)); // 선 굵기 통일 (2픽셀)
-
-        // 바깥 사각형 프레임
-        drawEdge(g2, 10, 9);
-        drawEdge(g2, 9, 8);
-        drawEdge(g2, 8, 7);
-        drawEdge(g2, 7, 6);
-        drawEdge(g2, 6, 5);
-        drawEdge(g2, 5, 4);
-        drawEdge(g2, 4, 3);
-        drawEdge(g2, 3, 2);
-        drawEdge(g2, 2, 1);
-        drawEdge(g2, 1, 0);
-        drawEdge(g2, 0, 19);
-        drawEdge(g2, 19, 18);
-        drawEdge(g2, 18, 17);
-        drawEdge(g2, 17, 16);
-        drawEdge(g2, 16, 15);
-        drawEdge(g2, 15, 14);
-        drawEdge(g2, 14, 13);
-        drawEdge(g2, 13, 12);
-        drawEdge(g2, 12, 11);
-        drawEdge(g2, 11, 10);
-
-        // 대각선 및 중심 연결
-        drawEdge(g2, 5, 22);
-        drawEdge(g2, 10, 24);
-        drawEdge(g2, 24, 23);
-        drawEdge(g2, 23, 20);
-        drawEdge(g2, 20, 25);
-        drawEdge(g2, 25, 26);
-        drawEdge(g2, 20, 27);
-        drawEdge(g2, 27, 28);
-        drawEdge(g2, 21, 22);
-        drawEdge(g2, 21, 20);
-        drawEdge(g2, 26, 15);
-        drawEdge(g2, 28, 0);
-
-
-
-    }
-
-    private void drawEdge(Graphics2D g2, int fromId, int toId) {
-        Point from = nodePositions.get(fromId);
-        Point to = nodePositions.get(toId);
-        if (from != null && to != null) {
-            g2.drawLine(from.x, from.y, to.x, to.y);
-        }
-    }
 
     @Override
     public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
         // 말만 제거
-        Component[] comps = this.getComponents();
-        for (Component c : comps) {
-            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
-                this.remove(c);
-            }
-        }
+        this.getChildren().removeIf(c -> c instanceof PieceComponent || c instanceof GroupedPieceComponent);
+
 
         Map<Integer, List<Piece>> positionMap = new HashMap<>();
         for (Player player : players) {
@@ -215,34 +133,16 @@ public class TetragonalBoardView extends BoardView {
                 }
             }
 
-            Point nodePos = nodePositions.get(nodeId);
+            Point2D nodePos = nodePositions.get(nodeId);
             if (nodePos == null) continue;
 
             if (piecesAtSamePos.size() == 1) {
                 Piece piece = piecesAtSamePos.get(0);
-
-                // 동일 인스턴스 찾기
-                Piece realKey = null;
-                for (Piece key : pieceComponentMap.keySet()) {
-                    if (key == piece) {
-                        realKey = key;
-                        break;
-                    }
-                }
-                if (realKey == null) {
-                    System.out.println("❌ realKey == null → 등록 안 된 piece입니다: pos = " + piece.getPosition() + ", justArrived = " + piece.isJustArrived());
-                    continue;
-                }
-
-                PieceComponent comp = pieceComponentMap.get(realKey);
-                if (comp == null) {
-                    System.out.println("❌ comp == null → Map에는 있으나 값이 없음");
-                    continue;
-                }
-                comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-                this.add(comp);
+                PieceComponent comp = pieceComponentMap.get(piece);
+                comp.setLayoutX(nodePos.getX() - 20);
+                comp.setLayoutY(nodePos.getY() - 20);
+                this.getChildren().add(comp);
             } else {
-                // 2개 이상일 경우 → GroupedPieceComponent 사용
                 List<Piece> normalizedPieces = new ArrayList<>();
                 for (Piece p : piecesAtSamePos) {
                     for (Piece key : pieceComponentMap.keySet()) {
@@ -261,17 +161,10 @@ public class TetragonalBoardView extends BoardView {
 
                 GroupedPieceComponent groupComp = new GroupedPieceComponent(normalizedPieces);
                 groupComp.setClickListener(listener);
-                System.out.println("✅ GroupedPieceComponent 추가: nodeId = " + nodeId + ", pieces = " + normalizedPieces.size());
-                groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-                this.add(groupComp);
+                groupComp.setLayoutX(nodePos.getX() - 20);
+                groupComp.setLayoutY(nodePos.getY() - 20);
+                this.getChildren().add(groupComp);
             }
         }
-
-        this.revalidate();
-        this.repaint();
     }
-
-
-
 }
-

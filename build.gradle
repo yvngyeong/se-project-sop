@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'org.openjfx.javafxplugin' version '0.0.13' // JavaFX 플러그인
 }
 
 group = 'com.example'
@@ -10,13 +11,21 @@ repositories {
 }
 
 dependencies {
-    // JUnit 5 의존성 추가
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation 'org.mockito:mockito-core:5.10.0'
     implementation 'com.formdev:flatlaf:3.4'
+
+    // JavaFX
+    implementation "org.openjfx:javafx-controls:21"
+    implementation "org.openjfx:javafx-fxml:21"
+}
+
+javafx {
+    version = "21"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 test {
     useJUnitPlatform()
-    maxHeapSize = "1G" // 기본은 512MB인데, 1GB로 증가시킴
+    maxHeapSize = "1G"
 }

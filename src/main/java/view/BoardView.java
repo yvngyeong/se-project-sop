@@ -5,50 +5,48 @@ import com.example.demo.Player;
 import com.example.demo.Node;
 import listener.PieceClickListener;
 
-import javax.swing.*;
-import java.awt.*;
+import javafx.geometry.Point2D;
+import javafx.scene.layout.Pane;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
 
-public abstract class BoardView extends JPanel {
-    protected Map<Node, JPanel> nodeToPanelMap = new HashMap<>();
-    protected Map<Integer, Point> nodePositions = new HashMap<>();
+public abstract class BoardView extends Pane {
+    protected Map<Node, Pane> nodeToPanelMap = new HashMap<>();
+    protected Map<Integer, Point2D> nodePositions = new HashMap<>();
 
-    public void putNodePosition(int nodeId, Point pos) {
+    public void putNodePosition(int nodeId, Point2D pos) {
         this.nodePositions.put(nodeId, pos);
     }
 
 
 
     public void clearPieces() {
-        for (JPanel nodePanel : nodeToPanelMap.values()) {
-            nodePanel.removeAll();
-            nodePanel.revalidate();
-            nodePanel.repaint();
+        for (Pane nodePanel : nodeToPanelMap.values()) {
+
+            nodePanel.getChildren().clear();
+
         }
     }
 
 
     public void addPieceComponentAt(PieceComponent pieceComponent, Node node) {
-        JPanel panel = nodeToPanelMap.get(node);
+        Pane panel = nodeToPanelMap.get(node);
         if (panel != null) {
-            panel.add(pieceComponent);
-            panel.revalidate();
-            panel.repaint();
+
+            panel.getChildren().add(pieceComponent);
         }
     }
 
 
     public void refreshPieces(Map<Piece, PieceComponent> pieceComponentMap, List<Player> players) {
-        Component[] comps = this.getComponents();
-        for (Component c : comps) {
-            if (c instanceof PieceComponent || c instanceof GroupedPieceComponent) {
-                this.remove(c);
-            }
-        }
+
+        this.getChildren().removeIf(c -> c instanceof PieceComponent || c instanceof GroupedPieceComponent);
+
+
 
         Map<Integer, List<Piece>> positionMap = new HashMap<>();
         for (Player player : players) {
@@ -64,14 +62,16 @@ public abstract class BoardView extends JPanel {
             int nodeId = entry.getKey();
             List<Piece> piecesAtSamePos = entry.getValue();
 
-            Point nodePos = nodePositions.get(nodeId);
+            Point2D nodePos = nodePositions.get(nodeId);
             if (nodePos == null) continue;
 
             if (piecesAtSamePos.size() == 1) {
                 Piece piece = piecesAtSamePos.get(0);
                 PieceComponent comp = pieceComponentMap.get(piece);
-                comp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-                this.add(comp);
+                comp.setLayoutX(nodePos.getX() - 20);
+                comp.setLayoutY(nodePos.getY() - 20);
+                this.getChildren().add(comp);
+
             } else {
                 // 핵심: pieceComponentMap의 key와 동일한 인스턴스를 사용한 리스트 만들기
                 List<Piece> normalizedPieces = new ArrayList<>();
@@ -90,17 +90,11 @@ public abstract class BoardView extends JPanel {
                 PieceClickListener listener = refComp.getListener();
 
                 GroupedPieceComponent groupComp = new GroupedPieceComponent(normalizedPieces);
-                groupComp.setClickListener(listener);
-                groupComp.setBounds(nodePos.x - 20, nodePos.y - 20, 40, 40);
-                this.add(groupComp);
+                groupComp.setLayoutX(nodePos.getX() - 20);
+                groupComp.setLayoutY(nodePos.getY() - 20);
+                this.getChildren().add(groupComp);
             }
         }
-
-        this.revalidate();
-        this.repaint();
-
     }
-
-
 }
 
