@@ -3,16 +3,12 @@ package viewTest;
 import com.example.demo.Piece;
 import com.example.demo.Player;
 import com.example.demo.TetragonalBoard;
-import view.BoardView;
-import view.GroupedPieceComponent;
 import view.PieceComponent;
 import view.TetragonalBoardView;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.ArrayList;
 
 public class TestGroupedPieces {
     public static void main(String[] args) {

@@ -10,7 +10,7 @@ public class Piece {
     private boolean isFinished;
     private static int groupCounter = 1; // 그룹 ID 자동 생성기 (공유)
     private int groupId = 0;             // 이 말의 그룹 ID (인스턴스별)
-    private boolean justArrived = false; // ✅ 도착 표시용 필드 추가
+    private boolean justArrived = false; //  도착 표시용 필드 추가
 
     // 추가
     private Stack<Integer> posStack = new Stack<>();
@@ -136,6 +136,20 @@ public class Piece {
     public void setJustArrived(boolean justArrived) {
         this.justArrived = justArrived;
     }
+
+    /*@Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Piece other = (Piece) obj;
+        return this.ownerId == other.ownerId && this.position == other.position && this.groupId == other.groupId;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(ownerId, position, groupId);
+    }*/
+
 
 }
 
