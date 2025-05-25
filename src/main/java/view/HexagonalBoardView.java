@@ -285,4 +285,3 @@ public class HexagonalBoardView extends BoardView {
         this.repaint();
     }
 }
-
