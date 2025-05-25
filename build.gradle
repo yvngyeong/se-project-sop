@@ -19,4 +19,10 @@ dependencies {
 test {
     useJUnitPlatform()
     maxHeapSize = "1G" // 기본은 512MB인데, 1GB로 증가시킴
+
+    // [중요] 리포트 생성 활성화
+    reports {
+        html.required.set(true)
+        junitXml.required.set(true)
+    }
 }

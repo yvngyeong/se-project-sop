@@ -99,7 +99,7 @@ public class TetragonalBoard extends Board {
         int position = myPiece.getPosition();
         if (edges.get(position).isEmpty()) {
             // (그룹이 있으면 그룹도 함께 finish)
-            if (myPiece.getGroupId() == 1) {
+            if (myPiece.getGroupId() != -1) {
                 for (Piece g : myPiece.getGroupedPieces()) {
                     if (!g.isFinished()) g.finish();
                 }
@@ -313,4 +313,5 @@ public class TetragonalBoard extends Board {
         return isCatched;
     }
 }
+
 

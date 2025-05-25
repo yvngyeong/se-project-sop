@@ -113,6 +113,11 @@ public class Piece {
             Stack<Integer> clone = (Stack<Integer>) sync.clone();
             p.posStack = clone;
         }
+        // ✅ ✅ ✅ 여기 추가!!
+        int finalGroupId = this.groupId;
+        for (Piece p : this.groupPieces) {
+            p.groupId = finalGroupId;
+        }
 
     }
 
