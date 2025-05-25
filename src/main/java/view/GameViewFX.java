@@ -1,4 +1,3 @@
-// GameViewFX.java
 package view;
 
 import com.example.demo.*;
@@ -31,6 +30,11 @@ public class GameViewFX {
     private BoardViewFX boardView;
     private StackPane boardPanel = new StackPane();
     private Map<Piece, PieceComponentFX> pieceComponentMap = new HashMap<>();
+    private Runnable restartCallback;
+
+    public void setRestartCallback(Runnable restartCallback) {
+        this.restartCallback = restartCallback;
+    }
 
     public void start(Stage stage, Game game) {
         root = new VBox(10);
@@ -71,18 +75,111 @@ public class GameViewFX {
         stage.show();
     }
 
+    public void setBoardView(Board board) {
+        if (board instanceof TetragonalBoard tBoard) boardView = new TetragonalBoardViewFX(tBoard);
+        else if (board instanceof PentagonalBoard pBoard) boardView = new PentagonalBoardViewFX(pBoard);
+        else if (board instanceof HexagonalBoard hBoard) boardView = new HexagonalBoardViewFX(hBoard);
+        else throw new IllegalArgumentException("알 수 없는 보드 타입입니다.");
+
+        boardPanel.getChildren().clear();
+        boardPanel.getChildren().add(boardView);
+    }
+
+    public void updateBoardPieces(List<Player> players) {
+        if (boardView != null) boardView.refreshPieces(pieceComponentMap, players);
+    }
+
+    public void updateUnusedPieces(List<Player> players) {
+        for (Player player : players) {
+            HBox box = piecePanels.get(player);
+            if (box != null) {
+                box.getChildren().clear();
+                for (Piece p : player.getUnusedPieces()) {
+                    PieceComponentFX comp = pieceComponentMap.get(p);
+                    if (comp != null) box.getChildren().add(comp);
+                }
+            }
+        }
+    }
+
+    public void showGameOverDialog(int winnerId) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("게임 종료");
+            alert.setHeaderText(null);
+            alert.setContentText("🎉 플레이어 " + winnerId + "번이 승리했습니다!\n게임을 다시 시작하시겠습니까?");
+
+            alert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK && restartCallback != null) restartCallback.run();
+                else Platform.exit();
+            });
+        });
+    }
+
+    public void setPieceClickListener(PieceClickListener listener) {
+        this.pieceClickListener = listener;
+        for (PieceComponentFX comp : pieceComponentMap.values()) {
+            comp.setClickListener(listener);
+        }
+    }
+
+    public void initPieceComponents(List<Player> players, PieceClickListener pieceClickListener) {
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                if (!pieceComponentMap.containsKey(piece)) {
+                    PieceComponentFX comp = new PieceComponentFX(piece, pieceClickListener);
+                    pieceComponentMap.put(piece, comp);
+                } else {
+                    pieceComponentMap.get(piece).setClickListener(pieceClickListener);
+                }
+            }
+        }
+    }
+
+    public void setThrowListener(ThrowListener listener) {
+        this.throwListener = listener;
+    }
+
+    public void setSelectThrowListener(SelectThrowListener listener) {
+        this.selectThrowListener = listener;
+    }
+
     public void setStatus(String text) {
         Platform.runLater(() -> statusLabel.setText("상태: " + text));
     }
 
     public void updateCurrentPlayer(int playerId) {
-        Platform.runLater(() -> currentPlayerLabel.setText("현재 플레이어: " + playerId));
+        Platform.runLater(() -> currentPlayerLabel.setText("현재 플레이어: " + playerId + "번"));
     }
 
     public void updateYutQueue(List<Integer> yutQueue) {
         StringBuilder sb = new StringBuilder("윷 결과: ");
         for (int r : yutQueue) sb.append(getYutName(r)).append(" ");
         Platform.runLater(() -> yutQueueLabel.setText(sb.toString()));
+    }
+
+    public void showYutResult(int result) {
+        Platform.runLater(() -> {
+            Stage popup = new Stage();
+            YutViewFX view = new YutViewFX();
+            view.setYutResult(result);
+            VBox box = new VBox(view);
+            box.setAlignment(Pos.CENTER);
+            box.setPadding(new Insets(20));
+            Scene scene = new Scene(box, 300, 250);
+            popup.setScene(scene);
+            popup.setTitle("윷 결과");
+            popup.show();
+            new Thread(() -> {
+                try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+                Platform.runLater(popup::close);
+            }).start();
+        });
+    }
+
+    public void showThrowButtonAgain(boolean isTestYut) {
+        if (isTestYut) createYutButtons();
+        else createRandomYutButtons();
     }
 
     public void createYutButtons() {
@@ -102,7 +199,7 @@ public class GameViewFX {
                 if (btn.isSelected() && selectThrowListener != null) {
                     selectThrowListener.onThrowSelected(value);
                 }
-                btn.setSelected(false); // 재선택 허용
+                btn.setSelected(false);
             });
             yutButtonPanel.getChildren().add(btn);
         }
@@ -139,101 +236,6 @@ public class GameViewFX {
         }
     }
 
-    public void updateUnusedPieces(List<Player> players) {
-        for (Player player : players) {
-            HBox box = piecePanels.get(player);
-            if (box != null) {
-                box.getChildren().clear();
-                for (Piece p : player.getUnusedPieces()) {
-                    PieceComponentFX comp = pieceComponentMap.get(p);
-                    if (comp != null) box.getChildren().add(comp);
-                }
-            }
-        }
-    }
-
-    public void updateBoardPieces(List<Player> players) {
-        if (boardView != null) boardView.refreshPieces(pieceComponentMap, players);
-    }
-
-    public void showYutResult(int result) {
-        Platform.runLater(() -> {
-            Stage popup = new Stage();
-            YutViewFX view = new YutViewFX();
-            view.setYutResult(result);
-            VBox box = new VBox(view);
-            box.setAlignment(Pos.CENTER);
-            box.setPadding(new Insets(20));
-            Scene scene = new Scene(box, 300, 250);
-            popup.setScene(scene);
-            popup.setTitle("윷 결과");
-            popup.show();
-            new Thread(() -> {
-                try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-                Platform.runLater(popup::close);
-            }).start();
-        });
-    }
-
-    public void showThrowButtonAgain(boolean isTestYut) {
-        if (isTestYut) createYutButtons();
-        else createRandomYutButtons();
-    }
-
-    public void showGameOverDialog(int winnerId) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("게임 종료");
-            alert.setHeaderText(null);
-            alert.setContentText("🎉 플레이어 " + winnerId + "번이 승리했습니다!");
-            alert.showAndWait();
-            System.exit(0);
-        });
-    }
-
-    public void setBoardView(Board board) {
-        if (board instanceof TetragonalBoard tBoard) boardView = new TetragonalBoardViewFX(tBoard);
-        else if (board instanceof PentagonalBoard pBoard) boardView = new PentagonalBoardViewFX(pBoard);
-        else if (board instanceof HexagonalBoard hBoard) boardView = new HexagonalBoardViewFX(hBoard);
-        else throw new IllegalArgumentException("알 수 없는 보드 타입입니다.");
-
-        boardPanel.getChildren().clear();
-        boardPanel.getChildren().add(boardView);
-    }
-
-    public void setPieceClickListener(PieceClickListener listener) {
-        this.pieceClickListener = listener;
-        for (PieceComponentFX comp : pieceComponentMap.values()) {
-            comp.setClickListener(listener);
-        }
-    }
-
-    public void setThrowListener(ThrowListener listener) {
-        this.throwListener = listener;
-    }
-
-    public void setSelectThrowListener(SelectThrowListener listener) {
-        this.selectThrowListener = listener;
-    }
-
-    public void initPieceComponents(List<Player> players, PieceClickListener listener) {
-        this.pieceClickListener = listener;
-
-        for (Player player : players) {
-            for (Piece piece : player.getPieces()) {
-                PieceComponentFX comp = pieceComponentMap.get(piece);
-                if (comp == null) {
-                    comp = new PieceComponentFX(piece, listener);
-                    pieceComponentMap.put(piece, comp);
-                } else {
-                    comp.setClickListener(listener); // 항상 재등록
-                }
-            }
-        }
-    }
-
-
-
     public String getYutName(int result) {
         return switch (result) {
             case -1 -> "빽도";
@@ -246,6 +248,3 @@ public class GameViewFX {
         };
     }
 }
-
-
-

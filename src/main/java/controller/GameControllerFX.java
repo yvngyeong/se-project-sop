@@ -1,55 +1,51 @@
 package controller;
 
 import com.example.demo.*;
+import javafx.stage.Stage;
+import listener.PieceClickListener;
 import view.GameViewFX;
+import view.ServiceViewFX;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameControllerFX {
+    private final Stage stage;
     private final Game game;
     private final GameViewFX gameView;
     private final List<Integer> yutQueue = new ArrayList<>();
     private boolean isThrowing = true;
     private int currentPlayerIndex = 0;
     private Piece selectedPiece = null;
-
     private Integer selectedYut = null;
-    private boolean randomYutButtonCreated = false;
 
-    public GameControllerFX(Game game, GameViewFX gameView) {
-        System.out.println("GameControllerFX 초기화 시작");
+    public GameControllerFX(Stage stage, Game game, GameViewFX gameView) {
+        this.stage = stage;
         this.game = game;
         this.gameView = gameView;
-        System.out.println("GameViewFX 생성 완료");
 
-        gameView.updateCurrentPlayer(getCurrentPlayer().getId());
-        gameView.setStatus("윷을 던져주세요.");
-        gameView.setPieceClickListener(piece -> selectPiece(piece));
+        gameView.setRestartCallback(this::restart);
+        gameView.setPieceClickListener(this::selectPiece);
 
         if (game.getYut() instanceof TestYut) {
             gameView.createYutButtons();
             gameView.setSelectThrowListener(result -> {
                 if (!isThrowing) return;
                 ((TestYut) game.getYut()).setNext(result);
-                int realResult = game.getYut().getResult();
-                processYutResult(realResult);
+                processYutResult(game.getYut().getResult());
             });
         } else {
-            if (!randomYutButtonCreated) {
-                gameView.createRandomYutButtons();
-                randomYutButtonCreated = true;
-            }
+            gameView.createRandomYutButtons();
             gameView.setThrowListener(() -> {
                 if (!isThrowing) return;
-                int result = game.getYut().getResult();
-                processYutResult(result);
+                processYutResult(game.getYut().getResult());
             });
         }
 
-        gameView.initPieceComponents(game.getPlayers(), piece -> selectPiece(piece));
-        gameView.updateBoardPieces(game.getPlayers());  // ✅ 말 표시
-        gameView.updateUnusedPieces(game.getPlayers()); // ✅ 오른쪽 말 패널 표시
+        gameView.initPieceComponents(game.getPlayers(), this::selectPiece);
+        gameView.updateUnusedPieces(game.getPlayers());
+        gameView.updateCurrentPlayer(getCurrentPlayer().getId());
+        gameView.setStatus("윷을 던져주세요.");
     }
 
     private void processYutResult(int result) {
@@ -64,21 +60,16 @@ public class GameControllerFX {
 
         isThrowing = false;
 
-        if (!yutQueue.isEmpty()) {
-            if (yutQueue.size() == 1) {
-                selectedYut = yutQueue.get(0);
-                gameView.setStatus(gameView.getYutName(selectedYut) + "이 나왔습니다. 말을 선택하세요.");
-            } else {
-                selectedYut = null;
-                gameView.setStatus("적용할 윷 결과를 선택해주세요.");
-                gameView.showYutResultButtons(yutQueue, selected -> {
-                    selectedYut = selected;
-                    gameView.setStatus(gameView.getYutName(selected) + "을 선택했습니다. 말을 클릭하세요.");
-                });
-            }
+        if (yutQueue.size() == 1) {
+            selectedYut = yutQueue.get(0);
+            gameView.setStatus(gameView.getYutName(selectedYut) + "이 나왔습니다. 말을 선택하세요.");
         } else {
-            selectedPiece = null;
-            nextTurn();
+            selectedYut = null;
+            gameView.setStatus("적용할 윷 결과를 선택해주세요.");
+            gameView.showYutResultButtons(yutQueue, selected -> {
+                selectedYut = selected;
+                gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다. 말을 클릭하세요.");
+            });
         }
     }
 
@@ -90,6 +81,8 @@ public class GameControllerFX {
         currentPlayerIndex = (currentPlayerIndex + 1) % game.getPlayers().size();
         isThrowing = true;
         selectedPiece = null;
+        selectedYut = null;
+        yutQueue.clear();
 
         for (Piece piece : getCurrentPlayer().getPieces()) {
             piece.setWaitingForFinish(false);
@@ -97,13 +90,10 @@ public class GameControllerFX {
 
         gameView.updateCurrentPlayer(getCurrentPlayer().getId());
         gameView.setStatus("윷을 던져주세요.");
-
-        if (game.getYut() instanceof TestYut) {
-            gameView.showThrowButtonAgain(true);
-        }
+        gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);
     }
 
-    public void selectPiece(Piece piece) {
+    private void selectPiece(Piece piece) {
         if (isThrowing) {
             gameView.setStatus("먼저 윷을 던지세요.");
             return;
@@ -119,66 +109,46 @@ public class GameControllerFX {
             return;
         }
 
-        boolean hasPieceOnBoard = getCurrentPlayer().getPieces().stream()
-                .anyMatch(p -> !p.isFinished() && p.getPosition() > 0);
+        selectedPiece = piece;
+        game.getBoard().movePosition(selectedPiece, selectedYut);
+        boolean catched = game.getBoard().isCatched();
 
-        if (selectedYut == -1 && hasPieceOnBoard) {
-            if (piece.getPosition() == 0 && !piece.isJustArrived()) {
-                gameView.setStatus("이미 판위에 말이 있습니다.");
-                return;
-            }
+        yutQueue.remove(selectedYut);
+        selectedYut = null;
+
+        gameView.hideYutResultButtons();
+        gameView.updateBoardPieces(game.getPlayers());
+        gameView.updateUnusedPieces(game.getPlayers());
+        gameView.updateYutQueue(yutQueue);
+
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer.checkWin()) {
+            gameView.showGameOverDialog(currentPlayer.getId());
+            return;
         }
 
-        selectedPiece = piece;
-        System.out.println("🖱 클릭된 말: " + piece);
-
+        if (catched) {
+            gameView.setStatus("상대 말을 잡았습니다! 한 번 더 던지세요.");
+            isThrowing = true;
+            selectedPiece = null;
+            gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);
+            return;
+        }
 
         if (!yutQueue.isEmpty()) {
-            int yut = selectedYut;
-            game.getBoard().movePosition(selectedPiece, yut);
-            boolean catched = game.getBoard().isCatched();
-
-            yutQueue.remove(selectedYut);
-            if (yutQueue.isEmpty()) {
-                gameView.hideYutResultButtons();
-            }
-            selectedYut = null;
-
-            gameView.updateBoardPieces(game.getPlayers());
-            gameView.updateUnusedPieces(game.getPlayers());
-            gameView.updateYutQueue(yutQueue);
-
-            Player currentPlayer = getCurrentPlayer();
-            if (currentPlayer.checkWin()) {
-                gameView.showGameOverDialog(currentPlayer.getId());
-                return;
-            }
-
-            if (catched) {
-                gameView.setStatus("상대 말을 잡았습니다! 한 번 더 던지세요.");
-                isThrowing = true;
-                selectedPiece = null;
-                if (game.getYut() instanceof TestYut) {
-                    gameView.showThrowButtonAgain(true);
-                }
-                return;
-            }
-
-            if (!yutQueue.isEmpty()) {
-                gameView.setStatus("이동할 윷 결과를 선택하세요.");
-                gameView.showYutResultButtons(yutQueue, selected -> {
-                    selectedYut = selected;
-                    gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다. 말을 클릭하세요.");
-                });
-            } else {
-                selectedPiece = null;
-                nextTurn();
-            }
+            gameView.setStatus("이동할 윷 결과를 선택하세요.");
+            gameView.showYutResultButtons(yutQueue, selected -> {
+                selectedYut = selected;
+                gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다. 말을 클릭하세요.");
+            });
         } else {
-            gameView.setStatus("적용할 윷 결과가 없습니다.");
+            selectedPiece = null;
+            nextTurn();
         }
     }
+
+    public void restart() {
+        ServiceViewFX serviceView = new ServiceViewFX();
+        serviceView.start(stage);
+    }
 }
-
-
-

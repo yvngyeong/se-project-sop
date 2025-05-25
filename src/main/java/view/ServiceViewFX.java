@@ -1,4 +1,3 @@
-// ServiceViewFX.java
 package view;
 
 import com.example.demo.*;
@@ -9,55 +8,81 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceViewFX {
+    private int playerCount;
+    private int pieceCount;
+    private String selectedYut;
+    private String selectedBoard;
 
-    private int playerCount = 2;
-    private int pieceCount = 4;
-    private String selectedYut = "지정 윷";
-    private String selectedBoard = "4각형";
+    private final Button startButton = new Button("게임 시작");
+    private final VBox root = new VBox(15);
+    private final List<ToggleButton> allToggleButtons = new ArrayList<>();
 
-    private final Stage stage;
-
-    public ServiceViewFX(Stage stage) {
-        this.stage = stage;
-    }
-
-    public void show(Consumer<ServiceViewFX> onStart) {
-        VBox root = new VBox(15);
+    public void start(Stage stage) {
         root.setPadding(new Insets(20));
-        root.setAlignment(Pos.CENTER);
+        root.setAlignment(Pos.TOP_LEFT);
 
-        root.getChildren().add(createSelection("플레이어 수", new String[]{"2", "3", "4"}, v -> playerCount = Integer.parseInt(v)));
-        root.getChildren().add(createSelection("말 수", new String[]{"2", "3", "4", "5"}, v -> pieceCount = Integer.parseInt(v)));
-        root.getChildren().add(createSelection("윷 종류", new String[]{"지정 윷", "랜덤 윷"}, v -> selectedYut = v));
-        root.getChildren().add(createSelection("보드판", new String[]{"4각형", "5각형", "6각형"}, v -> selectedBoard = v));
+        root.getChildren().addAll(
+                createSelectionBox("플레이어 수", new String[]{"2", "3", "4"}, value -> playerCount = Integer.parseInt(value)),
+                createSelectionBox("각 플레이어 말 수", new String[]{"2", "3", "4", "5"}, value -> pieceCount = Integer.parseInt(value)),
+                createSelectionBox("윷 종류", new String[]{"지정 윷", "랜덤 윷"}, value -> selectedYut = value),
+                createSelectionBox("보드판 종류", new String[]{"4각형", "5각형", "6각형"}, value -> selectedBoard = value)
+        );
 
-        Button startBtn = new Button("게임 시작");
-        startBtn.setOnAction(e -> onStart.accept(this));
-        root.getChildren().add(startBtn);
+        HBox buttonBox = new HBox(startButton);
+        buttonBox.setAlignment(Pos.CENTER);
+        root.getChildren().add(buttonBox);
 
-        Scene scene = new Scene(root, 400, 400);
+        Scene scene = new Scene(root, 450, 400);
+        stage.setTitle("윷놀이 게임 설정");
         stage.setScene(scene);
-        stage.setTitle("게임 설정");
         stage.show();
     }
 
-    private HBox createSelection(String label, String[] options, Consumer<String> callback) {
-        Label title = new Label(label + ": ");
-        ToggleGroup group = new ToggleGroup();
-        HBox box = new HBox(10, title);
-        box.setAlignment(Pos.CENTER);
+    private VBox createSelectionBox(String title, String[] options, ValueConsumer consumer) {
+        VBox vbox = new VBox(5);
+        Label label = new Label(title + ":");
 
-        for (String opt : options) {
-            RadioButton rb = new RadioButton(opt);
-            rb.setToggleGroup(group);
-            if (opt.equals(options[0])) rb.setSelected(true); // 첫 항목 기본 선택
-            rb.setOnAction(e -> callback.accept(opt));
-            box.getChildren().add(rb);
+        ToggleGroup group = new ToggleGroup();
+        HBox buttonRow = new HBox(10);
+        buttonRow.setAlignment(Pos.CENTER_LEFT);
+
+        for (String option : options) {
+            ToggleButton button = new ToggleButton(option);
+            button.setUserData(option);
+            button.setToggleGroup(group);
+            button.setOnAction(e -> {
+                highlightSelected(group);
+                consumer.accept(option);
+            });
+
+            styleToggleButton(button);
+            buttonRow.getChildren().add(button);
+            allToggleButtons.add(button);
         }
-        return box;
+
+        vbox.getChildren().addAll(label, buttonRow);
+        return vbox;
+    }
+
+    private void highlightSelected(ToggleGroup group) {
+        for (ToggleButton btn : allToggleButtons) {
+            if (btn.getToggleGroup() == group) {
+                if (btn.isSelected()) {
+                    btn.setStyle("-fx-background-color: #768ce4; -fx-text-fill: white;");
+                } else {
+                    btn.setStyle("");
+                }
+            }
+        }
+    }
+
+    private void styleToggleButton(ToggleButton btn) {
+        btn.setMinWidth(60);
+        btn.setFocusTraversable(false);
     }
 
     public int getPlayerCount() {
@@ -92,6 +117,12 @@ public class ServiceViewFX {
             default -> null;
         };
     }
+
+    public void addStartButtonListener(Runnable listener) {
+        startButton.setOnAction(e -> listener.run());
+    }
+
+    private interface ValueConsumer {
+        void accept(String value);
+    }
 }
-
-

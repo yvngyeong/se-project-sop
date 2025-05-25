@@ -1,61 +1,68 @@
 package view;
 
 import com.example.demo.Piece;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import listener.PieceClickListener;
 
 import java.util.List;
 
-public class GroupedPieceComponentFX extends StackPane {
+public class GroupedPieceComponentFX extends Region {
     private final List<Piece> pieces;
     private PieceClickListener listener;
+    private Circle circle;
+    private Text countText;
 
     public GroupedPieceComponentFX(List<Piece> pieces) {
         this.pieces = pieces;
-
         setPrefSize(40, 40);
+        setMinSize(40, 40);
+        setMaxSize(40, 40);
+        setStyle("-fx-background-color: transparent;");
 
-        // 말 색상 설정
-        Circle circle = new Circle(20);
-        circle.setFill(getColorByOwnerId(pieces.get(0).getOwnerId()));
-
-        // "xN" 텍스트 표시
-        Label label = new Label("x" + pieces.size());
-        label.setTextFill(Color.WHITE);
-        label.setStyle("-fx-font-weight: bold; -fx-font-size: 12px;");
-
-        getChildren().addAll(circle, label);
-
-        // 클릭 이벤트 처리: 대표 말 1개 기준
-        this.setOnMouseClicked((MouseEvent e) -> {
-            if (listener != null && !pieces.isEmpty()) {
-                listener.onPieceClicked(pieces.get(0));
-            }
-        });
-
-        // 툴팁 비슷하게 사용자 정보 추가 가능
-        this.setUserData("그룹: " + pieces.size() + "개");
+        drawGroup();
+        setupClickHandler();
     }
 
-    public void setClickListener(PieceClickListener listener) {
-        this.listener = listener;
-    }
+    private void drawGroup() {
+        getChildren().clear();
 
-    public PieceClickListener getListener() {
-        return listener;
-    }
+        if (pieces.isEmpty()) return;
 
-    private Color getColorByOwnerId(int ownerId) {
-        return switch (ownerId) {
+        int ownerId = pieces.get(0).getOwnerId();
+        Color color = switch (ownerId) {
             case 1 -> Color.BLUE;
             case 2 -> Color.GREEN;
             case 3 -> Color.ORANGE;
             case 4 -> Color.RED;
             default -> Color.GRAY;
         };
+
+        circle = new Circle(20, 20, 15);
+        circle.setFill(color);
+
+        countText = new Text("x" + pieces.size());
+        countText.setFont(Font.font("Arial", 12));
+        countText.setFill(Color.WHITE);
+        countText.setX(20 - 8);
+        countText.setY(20 + 4);
+
+        getChildren().addAll(circle, countText);
+    }
+
+    private void setupClickHandler() {
+        setOnMouseClicked((MouseEvent e) -> {
+            if (listener != null && !pieces.isEmpty()) {
+                listener.onPieceClicked(pieces.get(0));
+            }
+        });
+    }
+
+    public void setClickListener(PieceClickListener listener) {
+        this.listener = listener;
     }
 }

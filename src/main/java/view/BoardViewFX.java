@@ -1,39 +1,39 @@
 package view;
 
-import com.example.demo.Piece;
-import com.example.demo.Player;
-import com.example.demo.Node;
-import listener.PieceClickListener;
-
+import com.example.demo.*;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import listener.PieceClickListener;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class BoardViewFX extends Pane {
-    protected Map<Node, Pane> nodeToPanelMap = new HashMap<>();
-    protected Map<Integer, Point2D> nodePositions = new HashMap<>();
+    protected final Map<Node, Pane> nodeToPanelMap = new HashMap<>();
+    protected final Map<Integer, Point2D> nodePositions = new HashMap<>();
 
     public void putNodePosition(int nodeId, Point2D pos) {
         this.nodePositions.put(nodeId, pos);
     }
 
     public void clearPieces() {
-        this.getChildren().removeIf(c -> c instanceof PieceComponentFX || c instanceof GroupedPieceComponentFX);
+        getChildren().removeIf(c -> c instanceof PieceComponentFX || c instanceof GroupedPieceComponentFX);
     }
 
     public void addPieceComponentAt(PieceComponentFX pieceComponent, Node node) {
-        Pane panel = nodeToPanelMap.get(node);
-        if (panel != null) {
-            panel.getChildren().add(pieceComponent);
+        Point2D pos = nodePositions.get(node.getNodeID());
+        if (pos != null) {
+            pieceComponent.setLayoutX(pos.getX() - 20);
+            pieceComponent.setLayoutY(pos.getY() - 20);
+            getChildren().add(pieceComponent);
         }
     }
 
     public void refreshPieces(Map<Piece, PieceComponentFX> pieceComponentMap, List<Player> players) {
-        this.getChildren().removeIf(c -> c instanceof PieceComponentFX || c instanceof GroupedPieceComponentFX);
+        getChildren().removeIf(c -> c instanceof PieceComponentFX || c instanceof GroupedPieceComponentFX);
 
         Map<Integer, List<Piece>> positionMap = new HashMap<>();
         for (Player player : players) {
@@ -52,38 +52,44 @@ public abstract class BoardViewFX extends Pane {
             Point2D nodePos = nodePositions.get(nodeId);
             if (nodePos == null) continue;
 
+            if (nodeId == 0) {
+                piecesAtSamePos = piecesAtSamePos.stream()
+                        .filter(Piece::isJustArrived)
+                        .collect(Collectors.toList());
+                if (piecesAtSamePos.isEmpty()) continue;
+            }
+
             if (piecesAtSamePos.size() == 1) {
                 Piece piece = piecesAtSamePos.get(0);
                 PieceComponentFX comp = pieceComponentMap.get(piece);
-                if (comp == null) continue; // null 체크 추가
-
-                comp.setLayoutX(nodePos.getX() - 20);
-                comp.setLayoutY(nodePos.getY() - 20);
-                this.getChildren().add(comp);
+                if (comp != null) {
+                    comp.setLayoutX(nodePos.getX() - 20);
+                    comp.setLayoutY(nodePos.getY() - 20);
+                    getChildren().add(comp);
+                }
             } else {
-                List<Piece> normalizedPieces = new ArrayList<>();
+                List<Piece> normalized = new ArrayList<>();
                 for (Piece p : piecesAtSamePos) {
                     for (Piece key : pieceComponentMap.keySet()) {
                         if (key == p) {
-                            normalizedPieces.add(key);
+                            normalized.add(key);
                             break;
                         }
                     }
                 }
+                if (normalized.isEmpty()) continue;
 
-                if (normalizedPieces.isEmpty()) continue;
-
-                Piece referencePiece = normalizedPieces.get(0);
+                Piece referencePiece = normalized.get(0);
                 PieceComponentFX refComp = pieceComponentMap.get(referencePiece);
                 if (refComp == null) continue;
+                PieceClickListener listener = refComp.getListener();
 
-                GroupedPieceComponentFX groupComp = new GroupedPieceComponentFX(normalizedPieces);
-                groupComp.setClickListener(refComp.getListener()); // 클릭 리스너 설정
+                GroupedPieceComponentFX groupComp = new GroupedPieceComponentFX(normalized);
+                groupComp.setClickListener(listener);
                 groupComp.setLayoutX(nodePos.getX() - 20);
                 groupComp.setLayoutY(nodePos.getY() - 20);
-                this.getChildren().add(groupComp);
+                getChildren().add(groupComp);
             }
         }
     }
-
 }

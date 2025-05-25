@@ -1,5 +1,7 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.scene.Scene;
+
 import com.example.demo.*;
 import controller.GameControllerFX;
 import view.GameViewFX;
@@ -11,26 +13,34 @@ public class MainFX extends Application {
         System.out.println("MainFX 시작됨");
 
         // 서비스 화면 보여주기
-        ServiceViewFX serviceView = new ServiceViewFX(primaryStage);
+        ServiceViewFX serviceView = new ServiceViewFX();
+        serviceView.start(primaryStage);
 
-        serviceView.show(view -> {
+        serviceView.addStartButtonListener(() -> {
             // 사용자가 선택한 게임 설정 정보 가져오기
-            int playerCount = view.getPlayerCount();
-            int pieceCount = view.getPieceCount();
-            Yut yut = view.getYutObject();
-            Board board = view.getBoardObject();
+            int playerCount = serviceView.getPlayerCount();
+            int pieceCount = serviceView.getPieceCount();
+            Yut yut = serviceView.getYutObject();
+            Board board = serviceView.getBoardObject();
 
-            // Game은 내부에서 Player 리스트를 생성함
+            if (yut == null || board == null) {
+                System.err.println("잘못된 설정값입니다.");
+                return;
+            }
+
+            board.createNodes();
+            board.createEdges();
+
+            // Game 인스턴스 생성
             Game game = new Game(playerCount, pieceCount, yut, board);
 
-            // 게임 화면 생성 및 실행
+            // GameViewFX 준비
             GameViewFX gameViewFX = new GameViewFX();
             gameViewFX.setBoardView(board);
-            gameViewFX.start(primaryStage, game);
+            gameViewFX.start(primaryStage, game); // 여기서 Scene 설정
 
-            // 컨트롤러 연결
-            new GameControllerFX(game, gameViewFX);
-
+            // GameControllerFX 연결 (Stage 전달!)
+            new GameControllerFX(primaryStage, game, gameViewFX);
         });
     }
 
@@ -38,9 +48,3 @@ public class MainFX extends Application {
         launch(args);
     }
 }
-
-
-
-
-
-
