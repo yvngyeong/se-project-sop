@@ -194,6 +194,23 @@ public class TetragonalBoardTest {
         assertTrue(piece.isFinished());
     }
 
+    //기본 말 잡기
+    @Test
+    void testCapture(){
+        Piece enemy = new Piece(2);
+        enemy.setPosition(19);
+        board.nodes.get(19).add(enemy);
+
+        piece.setPosition(18);
+        board.nodes.get(18).add(piece);
+        board.movePosition(piece, 1);
+        assertEquals(0, enemy.getPosition());
+        assertEquals(19, piece.getPosition());
+        assertTrue(board.nodes.get(0).getOwnedPieces().contains(enemy));
+        assertTrue(board.nodes.get(19).getOwnedPieces().contains(piece));
+
+    }
+
     //도착점에서 말 잡기
     @Test
     void testCaptureAtFinishNode() {
@@ -212,6 +229,24 @@ public class TetragonalBoardTest {
         assertTrue(board.nodes.get(0).getOwnedPieces().contains(enemy));
         assertFalse(enemy.isJustArrived());
         assertTrue(piece.isJustArrived());
+    }
+
+    //그룹끼리 말 잡기
+    @Test
+    void testCaptureGrouping(){
+        Piece ally = new Piece(1); // 같은 팀
+        Piece enemy_1 = new Piece(2);
+        Piece enemy_2 = new Piece(2);
+        board.movePosition(piece,3);
+        board.movePosition(enemy_1,2);
+        board.movePosition(ally,3);
+        board.movePosition(enemy_2,2);
+        board.movePosition(piece,1);
+        board.movePosition(enemy_1,2);
+        assertEquals(0, piece.getPosition());
+        assertEquals(0, ally.getPosition());
+        assertTrue(board.nodes.get(0).getOwnedPieces().contains(piece));
+        assertTrue(board.nodes.get(0).getOwnedPieces().contains(ally));
     }
 
     //말 업기 (Grouping) 2개, 함께 이동
