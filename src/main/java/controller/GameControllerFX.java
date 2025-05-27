@@ -62,13 +62,13 @@ public class GameControllerFX {
 
         if (yutQueue.size() == 1) {
             selectedYut = yutQueue.get(0);
-            gameView.setStatus(gameView.getYutName(selectedYut) + "이 나왔습니다. 말을 선택하세요.");
+            gameView.setStatus(gameView.getYutName(selectedYut) + " 나왔습니다. \n말을 선택하세요.");
         } else {
             selectedYut = null;
             gameView.setStatus("적용할 윷 결과를 선택해주세요.");
             gameView.showYutResultButtons(yutQueue, selected -> {
                 selectedYut = selected;
-                gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다. 말을 클릭하세요.");
+                gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다.\n말을 클릭하세요.");
             });
         }
     }
@@ -128,7 +128,7 @@ public class GameControllerFX {
         }
 
         if (catched) {
-            gameView.setStatus("상대 말을 잡았습니다! 한 번 더 던지세요.");
+            gameView.setStatus("상대 말을 잡았습니다! \n한 번 더 던지세요.");
             isThrowing = true;
             selectedPiece = null;
             gameView.showThrowButtonAgain(game.getYut() instanceof TestYut);
@@ -139,7 +139,7 @@ public class GameControllerFX {
             gameView.setStatus("이동할 윷 결과를 선택하세요.");
             gameView.showYutResultButtons(yutQueue, selected -> {
                 selectedYut = selected;
-                gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다. 말을 클릭하세요.");
+                gameView.setStatus(gameView.getYutName(selected) + "(을)를 선택했습니다. \n말을 클릭하세요.");
             });
         } else {
             selectedPiece = null;
