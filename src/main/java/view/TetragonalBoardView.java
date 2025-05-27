@@ -3,7 +3,6 @@ package view;
 import com.example.demo.*;
 import listener.PieceClickListener;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;

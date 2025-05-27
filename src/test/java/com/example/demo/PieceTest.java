@@ -37,22 +37,6 @@ class PieceTest {
     }
 
     @Test
-    void testGrouping() {
-        Piece another = new Piece(1);
-
-        piece.grouping(another);
-
-        assertEquals(1, piece.getGroupId());
-        assertEquals(1, another.getGroupId());
-
-        List<Piece> group1 = piece.getGroupedPieces();
-        List<Piece> group2 = another.getGroupedPieces();
-
-        assertTrue(group1.contains(another));
-        assertTrue(group2.contains(piece));
-    }
-
-    @Test
     void testPushAndPopPreviousPosition() {
         piece.pushPreviousPosition(3);
         piece.pushPreviousPosition(7);

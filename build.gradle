@@ -1,5 +1,6 @@
 plugins {
-    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
 }
 
 group = 'com.example'
@@ -10,19 +11,30 @@ repositories {
 }
 
 dependencies {
-    // JUnit 5 의존성 추가
+    implementation 'com.formdev:flatlaf:3.4'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation 'org.mockito:mockito-core:5.10.0'
-    implementation 'com.formdev:flatlaf:3.4'
+}
+
+application {
+    mainClass = 'MainFX'  // 패키지 없을 때
+    // 패키지 있으면 예: 'com.example.MainFX'
+}
+
+javafx {
+    version = '21'
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 test {
     useJUnitPlatform()
-    maxHeapSize = "1G" // 기본은 512MB인데, 1GB로 증가시킴
-
-    // [중요] 리포트 생성 활성화
-    reports {
-        html.required.set(true)
-        junitXml.required.set(true)
-    }
+    maxHeapSize = "1G"
 }
+
+

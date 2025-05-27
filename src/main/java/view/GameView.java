@@ -4,15 +4,12 @@ import com.example.demo.*;
 import listener.PieceClickListener;
 import listener.SelectThrowListener;
 import listener.ThrowListener;
-import listener.SelectThrowListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class GameView extends JFrame {
     private BoardView boardPanel;

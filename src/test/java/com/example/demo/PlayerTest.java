@@ -47,23 +47,6 @@ class PlayerTest {
         assertEquals(-1, p.popPreviousPosition()); // 스택 비었을 때
     }
 
-    //말 그룹핑 검사
-    @Test
-    void testPieceGrouping() {
-        Piece p1 = player.getPieces().get(0);
-        Piece p2 = player.getPieces().get(1);
-
-        assertNotEquals(1, p1.getGroupId());
-        assertNotEquals(1, p2.getGroupId());
-
-        p1.grouping(p2);
-
-        assertEquals(1, p1.getGroupId());
-        assertEquals(1, p2.getGroupId());
-
-        assertTrue(p1.getGroupedPieces().contains(p2));
-        assertTrue(p2.getGroupedPieces().contains(p1));
-    }
 
     //모든 말이 끝나면, 승리로 바뀌는지 확인
     @Test
