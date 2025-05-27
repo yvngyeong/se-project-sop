@@ -157,5 +157,23 @@ public class GameControllerFX {
     public void restart() {
         ServiceViewFX serviceView = new ServiceViewFX();
         serviceView.start(stage);
+
+        serviceView.addStartButtonListener(() -> {
+            Yut yut = serviceView.getYutObject();
+            Board board = serviceView.getBoardObject();
+
+            if (yut == null || board == null) {
+                System.err.println("설정이 올바르지 않습니다.");
+                return;
+            }
+
+            board.createNodes();
+            board.createEdges();
+
+            Game game = new Game(serviceView.getPlayerCount(), serviceView.getPieceCount(), yut, board);
+            GameViewFX newGameView = new GameViewFX();
+            newGameView.start(stage,game);
+            new GameControllerFX(stage, game, newGameView);
+        });
     }
 }

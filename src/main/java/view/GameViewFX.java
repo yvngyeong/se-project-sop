@@ -66,6 +66,7 @@ public class GameViewFX {
 
         rightPanel.getChildren().addAll(currentPlayerLabel, yutQueueLabel, statusLabel);
 
+        setBoardView(game.getBoard());
         mainLayout.getChildren().addAll(boardPanel, rightPanel);
         root.getChildren().add(mainLayout);
 
