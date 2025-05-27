@@ -7,7 +7,6 @@ public class TestYut extends Yut {
     private int nextValue;
 
     public TestYut(int... values) {
-
     }
     public void setNext(int value) {
         this.nextValue = value;
