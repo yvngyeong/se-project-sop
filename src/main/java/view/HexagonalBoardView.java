@@ -3,7 +3,6 @@ package view;
 import com.example.demo.*;
 import listener.PieceClickListener;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.HashMap;
@@ -286,4 +285,3 @@ public class HexagonalBoardView extends BoardView {
         this.repaint();
     }
 }
-

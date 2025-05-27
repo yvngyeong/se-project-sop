@@ -10,7 +10,7 @@ public class Piece {
     private boolean isFinished;
     private static int groupCounter = 1; // 그룹 ID 자동 생성기 (공유)
     private int groupId = 0;             // 이 말의 그룹 ID (인스턴스별)
-    private boolean justArrived = false; // ✅ 도착 표시용 필드 추가
+    private boolean justArrived = false; //  도착 표시용 필드 추가
 
     // 추가
     private Stack<Integer> posStack = new Stack<>();
@@ -86,13 +86,39 @@ public class Piece {
                 this.groupPieces.add(p);
             }
         }
+        // B <- A  ← 이게 빠져있었음
+        for (Piece p : this.groupPieces) {
+            if (!otherPiece.groupPieces.contains(p)) {
+                otherPiece.groupPieces.add(p);
+            }
+        }
         if (!this.groupPieces.contains(otherPiece)) {
             this.groupPieces.add(otherPiece);
         }
         if (!otherPiece.groupPieces.contains(this)) {
             otherPiece.groupPieces.add(this);
         }
+        for (Piece p : this.groupPieces) {
+            if (p != this) {
+                this.copyStackTo(p);
+            }
+        }
+
         System.out.println("   ↪️ 그룹 크기: " + this.groupPieces.size());
+
+
+        //posStack 동기화
+        Stack<Integer> sync = (Stack<Integer>) this.posStack.clone();
+        for (Piece p : this.groupPieces) {
+            Stack<Integer> clone = (Stack<Integer>) sync.clone();
+            p.posStack = clone;
+        }
+        // ✅ ✅ ✅ 여기 추가!!
+        int finalGroupId = this.groupId;
+        for (Piece p : this.groupPieces) {
+            p.groupId = finalGroupId;
+        }
+
     }
 
     public List<Piece> getGroupedPieces() {
@@ -126,7 +152,6 @@ public class Piece {
         groupId = 0;
         groupPieces.clear();
     }
-
     public int getPreviousPosition() {
         if (!posStack.isEmpty()) {
             return posStack.peek(); // 또는 직접 Stack 확인
@@ -140,6 +165,24 @@ public class Piece {
     public void setJustArrived(boolean justArrived) {
         this.justArrived = justArrived;
     }
+
+    public void copyStackTo(Piece target) {
+        target.posStack.clear();
+        target.posStack.addAll(this.posStack);
+    }
+    /*@Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Piece other = (Piece) obj;
+        return this.ownerId == other.ownerId && this.position == other.position && this.groupId == other.groupId;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(ownerId, position, groupId);
+    }*/
+
 
 }
 

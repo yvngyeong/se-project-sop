@@ -92,7 +92,7 @@ public class HexagonalBoard extends Board {
         int position = myPiece.getPosition();
         if (edges.get(position).isEmpty()) {
             // (그룹이 있으면 그룹도 함께 finish)
-            if (myPiece.getGroupId() == 1) {
+            if (myPiece.getGroupId() != -1) {
                 for (Piece g : myPiece.getGroupedPieces()) {
                     if (!g.isFinished()) g.finish();
                 }
@@ -130,6 +130,8 @@ public class HexagonalBoard extends Board {
                 if (prev == 0) {
                     myPiece.setJustArrived(true);
                     myPiece.setWaitingForFinish(true);
+
+                    myPiece.pushPreviousPosition(1);
                 }
 
                 Node targetNode = nodes.get(prev);
@@ -238,7 +240,9 @@ public class HexagonalBoard extends Board {
                 } else {
                     position = nextPosition.get(0);  // 일반 30→34
                 }
+                myPiece.pushPreviousPosition(prev2);
                 myPiece.pushPreviousPosition(prev1);
+
                 myPiece.setPosition(position);
                 nodes.get(position).add(myPiece);   //노드 정보도 갱신 필요
             }
@@ -282,9 +286,12 @@ public class HexagonalBoard extends Board {
                 if (position == 0) {
                     grouped.setJustArrived(true);
                 }
+                else if(position == 43){
+                    grouped.setJustArrived(false);
+                    grouped.finish();
+                }
             }
         }
-
 
 
     }

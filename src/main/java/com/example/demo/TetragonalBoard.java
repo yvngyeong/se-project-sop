@@ -99,7 +99,7 @@ public class TetragonalBoard extends Board {
         int position = myPiece.getPosition();
         if (edges.get(position).isEmpty()) {
             // (그룹이 있으면 그룹도 함께 finish)
-            if (myPiece.getGroupId() == 1) {
+            if (myPiece.getGroupId() != -1) {
                 for (Piece g : myPiece.getGroupedPieces()) {
                     if (!g.isFinished()) g.finish();
                 }
@@ -132,6 +132,7 @@ public class TetragonalBoard extends Board {
             int prev = myPiece.popPreviousPosition(); // 본인의 이전 위치
             nodes.get(position).remove(myPiece);
 
+
             if (prev != -1) {
                 System.out.println("빽도");
 
@@ -140,30 +141,25 @@ public class TetragonalBoard extends Board {
                     myPiece.setJustArrived(true);  // ⬅ View에서 그릴 수 있도록 true
                     myPiece.setWaitingForFinish(true);
 
+                    myPiece.pushPreviousPosition(1);
                 }
-
                 Node targetNode = nodes.get(prev);
                 handleCaptureAndGroup(myPiece, targetNode);
                 targetNode.add(myPiece);
-
 
                 if (myPiece.getGroupId() != -1) {
                     for (Piece grouped : myPiece.getGroupedPieces()) {
                         if (grouped != myPiece && !grouped.isFinished()) {
                             nodes.get(grouped.getPosition()).remove(grouped);
-
-                            grouped.popPreviousPosition(); // ✅ 스택 정리만
-                            grouped.setPosition(prev);     // ✅ leader와 동일한 prev 적용
+                            grouped.popPreviousPosition(); // 스택 정리만
+                            grouped.setPosition(prev);     // leader와 동일한 prev 적용
                             nodes.get(prev).add(grouped);
-
                             if (prev == 0) {
                                 grouped.setJustArrived(true);
                             }
                         }
                     }
                 }
-
-
                 return;
             } else {
                 System.out.println("뒤로 갈 수 없음");
@@ -256,6 +252,7 @@ public class TetragonalBoard extends Board {
                     } else {
                         position = nextPosition.get(0);
                     }
+                    myPiece.pushPreviousPosition(prev2);
                     myPiece.pushPreviousPosition(prev1);
                     myPiece.setPosition(position);
                     nodes.get(position).add(myPiece);   //노드 정보도 갱신 필요
@@ -301,6 +298,10 @@ public class TetragonalBoard extends Board {
                 if (position == 0) {
                     grouped.setJustArrived(true);
                 }
+                else if (position== 29){
+                    grouped.setJustArrived(false);
+                    grouped.finish();
+                }
             }
         }
 
@@ -312,4 +313,5 @@ public class TetragonalBoard extends Board {
         return isCatched;
     }
 }
+
 

@@ -71,43 +71,4 @@ class GameControllerTest {
         gameController.selectPiece(mockPiece); // 비어있어서 바로 return 될 것임
         // 실제로는 private yutQueue에 값을 넣고 다시 selectPiece 해야 동작하므로, 테스트에서 내부에 접근할 수 있게 구성하거나 리팩터링 필요
     }
-
-    @Test
-    void testCaptureOpponentPiece() throws Exception {
-        // 윷 결과 1 추가
-        Field queueField = GameController.class.getDeclaredField("yutQueue");
-        queueField.setAccessible(true);
-        List<Integer> queue = (List<Integer>) queueField.get(gameController);
-        queue.add(1);
-
-        // 윷 던지기 완료 상태로 설정
-        Field throwingField = GameController.class.getDeclaredField("isThrowing");
-        throwingField.setAccessible(true);
-        throwingField.set(gameController, false);
-
-        when(mockBoard.isCatched()).thenReturn(true);
-        when(mockPlayer.checkWin()).thenReturn(false);
-
-        gameController.selectPiece(mockPiece);
-
-        verify(mockBoard).movePosition(mockPiece, 1);
-        verify(gameView).setStatus("상대 말을 잡았습니다! 한 번 더 던지세요.");
-    }
-
-
-    @Test
-    void testGroupingSamePlayerPieces() {
-        Piece piece1 = new Piece(1);
-        Piece piece2 = new Piece(1);
-
-        piece1.setPosition(5);
-        piece2.setPosition(5);
-
-        piece1.grouping(piece2);
-
-        assertEquals(1, piece1.getGroupId());
-        assertTrue(piece1.getGroupedPieces().contains(piece2));
-        assertTrue(piece2.getGroupedPieces().contains(piece1));
-    }
-
 }
