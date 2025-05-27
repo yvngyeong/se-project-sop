@@ -22,6 +22,12 @@ public class HexagonalBoardViewFX extends BoardViewFX {
         setStyle("-fx-background-color: white;");
         calculateNodePositions();
         drawEdges();
+        drawBoard();
+    }
+
+    private void drawBoard() {
+        getChildren().clear();
+        drawEdges();
         drawNodes();
     }
 
@@ -58,6 +64,25 @@ public class HexagonalBoardViewFX extends BoardViewFX {
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(2);
             getChildren().add(line);
+        }
+    }
+
+    private void drawNodes() {
+        for (Node node : board.getNodes()) {
+            Point2D p = nodePositions.get(node.getNodeID());
+            if (p == null) continue;
+
+            Circle outer = new Circle(p.getX(), p.getY(), nodeSize / 2.0);
+            outer.setFill(Color.LIGHTGRAY);
+            outer.setStroke(Color.BLACK);
+            getChildren().add(outer);
+
+            if (node instanceof CornerNode) {
+                Circle inner = new Circle(p.getX(), p.getY(), (nodeSize - 10) / 2.0);
+                inner.setStroke(Color.BLACK);
+                inner.setFill(Color.TRANSPARENT);
+                getChildren().add(inner);
+            }
         }
     }
 
@@ -115,24 +140,66 @@ public class HexagonalBoardViewFX extends BoardViewFX {
         }
     }
 
-    private void drawNodes() {
-        for (Node node : board.getNodes()) {
-            Point2D p = nodePositions.get(node.getNodeID());
-            if (p == null) continue;
 
-            Circle outer = new Circle(p.getX(), p.getY(), nodeSize / 2.0);
-            outer.setFill(Color.LIGHTGRAY);
-            outer.setStroke(Color.BLACK);
-            getChildren().add(outer);
 
-            if (node instanceof CornerNode) {
-                Circle inner = new Circle(p.getX(), p.getY(), (nodeSize - 10) / 2.0);
-                inner.setStroke(Color.BLACK);
-                inner.setFill(Color.TRANSPARENT);
-                getChildren().add(inner);
+    @Override
+    public void refreshPieces(Map<Piece, PieceComponentFX> pieceComponentMap, List<Player> players) {
+        getChildren().removeIf(c -> c instanceof PieceComponentFX || c instanceof GroupedPieceComponentFX);
+
+        Map<Integer, List<Piece>> positionMap = new HashMap<>();
+        for (Player player : players) {
+            for (Piece piece : player.getPieces()) {
+                if (!piece.isFinished()) {
+                    int pos = piece.getPosition();
+                    positionMap.computeIfAbsent(pos, k -> new ArrayList<>()).add(piece);
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, List<Piece>> entry : positionMap.entrySet()) {
+            int nodeId = entry.getKey();
+            List<Piece> pieces = entry.getValue();
+
+            if (nodeId == 0) {
+                pieces = pieces.stream().filter(Piece::isJustArrived).collect(Collectors.toList());
+                if (pieces.isEmpty()) continue;
+            }
+
+            Point2D pos = nodePositions.get(nodeId);
+            if (pos == null) continue;
+
+            if (pieces.size() == 1) {
+                Piece piece = pieces.get(0);
+                PieceComponentFX comp = pieceComponentMap.get(piece);
+                comp.setLayoutX(pos.getX() - 20);
+                comp.setLayoutY(pos.getY() - 20);
+                getChildren().add(comp);
+            } else {
+                List<Piece> normalized = new ArrayList<>();
+                for (Piece p : pieces) {
+                    for (Piece key : pieceComponentMap.keySet()) {
+                        if (key == p) {
+                            normalized.add(key);
+                            break;
+                        }
+                    }
+                }
+
+                if (normalized.isEmpty()) continue;
+
+                Piece referencePiece = normalized.get(0);
+                PieceComponentFX refComp = pieceComponentMap.get(referencePiece);
+                PieceClickListener listener = refComp.getListener();
+
+                GroupedPieceComponentFX groupComp = new GroupedPieceComponentFX(normalized);
+                groupComp.setClickListener(listener);
+                groupComp.setLayoutX(pos.getX() - 20);
+                groupComp.setLayoutY(pos.getY() - 20);
+                getChildren().add(groupComp);
             }
         }
     }
+
 }
 
 
