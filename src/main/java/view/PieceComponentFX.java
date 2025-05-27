@@ -1,47 +1,45 @@
 package view;
 
 import com.example.demo.Piece;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import listener.PieceClickListener;
 
 public class PieceComponentFX extends StackPane {
-    private static final double RADIUS = 15;
-    private PieceClickListener listener;
     private final Piece piece;
+    private PieceClickListener listener;
 
     public PieceComponentFX(Piece piece, PieceClickListener listener) {
         this.piece = piece;
         this.listener = listener;
+        setPrefSize(38, 38);
+        setMaxSize(38, 38);
+        setMinSize(38, 38);
+        setMouseTransparent(false);
 
-        setPrefSize(RADIUS * 2 + 8, RADIUS * 2 + 8);
-
-        Circle circle = new Circle(RADIUS);
+        Circle circle = new Circle(15);
         circle.setFill(getColorByOwnerId(piece.getOwnerId()));
         circle.setStroke(Color.BLACK);
 
-        Label label = new Label("P" + piece.getOwnerId());
-        label.setTextFill(Color.WHITE);
-        label.setStyle("-fx-font-weight: bold; -fx-font-size: 11px;");
+        Text text = new Text("P" + piece.getOwnerId());
+        text.setFill(Color.WHITE);
+        text.setFont(Font.font("SansSerif", 12));
 
-        getChildren().addAll(circle, label);
+        getChildren().addAll(circle, text);
 
-        //  클릭 이벤트는 이 메서드에서 따로 처리하게 위임
-        setClickListener(listener);
+        setOnMouseClicked((MouseEvent e) -> {
+            if (listener != null) {
+                listener.onPieceClicked(piece);
+            }
+        });
     }
 
     public void setClickListener(PieceClickListener listener) {
         this.listener = listener;
-
-        //  클릭 이벤트 핸들러를 다시 등록
-        this.setOnMouseClicked((MouseEvent e) -> {
-            if (this.listener != null) {
-                this.listener.onPieceClicked(piece);
-            }
-        });
     }
 
     public PieceClickListener getListener() {
