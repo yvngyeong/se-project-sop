@@ -17,7 +17,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'MainFX'  // 패키지 없을 때
+    mainClass = 'Main'  // 패키지 없을 때
     // 패키지 있으면 예: 'com.example.MainFX'
 }
 
@@ -37,4 +37,17 @@ test {
     maxHeapSize = "1G"
 }
 
+tasks.jar {
+    // 🔧 실행 가능한 JAR을 만들기 위한 Main-Class 명시
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass.get()
+        )
+    }
 
+    // 🔧 라이브러리 포함 (Fat JAR 방식)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
