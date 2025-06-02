@@ -2,7 +2,7 @@ package com.example.demo;
 
 import java.util.Random;
 
-public class RandomYut extends Yut {
+public class RandomYut implements Yut {
     private Random random = new Random();
 
     @Override

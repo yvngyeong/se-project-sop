@@ -1,5 +1,5 @@
 package com.example.demo;
 
-public abstract class Yut {
+public interface Yut {
     public abstract Integer getResult();
 }

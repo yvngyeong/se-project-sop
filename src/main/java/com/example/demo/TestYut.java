@@ -3,7 +3,7 @@ package com.example.demo;
 import java.util.Queue;
 import java.util.LinkedList;
 
-public class TestYut extends Yut {
+public class TestYut implements Yut {
     private int nextValue;
 
     public TestYut(int... values) {

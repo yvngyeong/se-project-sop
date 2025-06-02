@@ -49,42 +49,6 @@ public class PentagonalBoard extends Board {
 
     }
 
-    private void handleCaptureAndGroup(Piece myPiece, Node targetNode) {
-        List<Piece> pieces = new ArrayList<>(targetNode.getOwnedPieces());
-
-        for (Piece opponentPiece : pieces) {
-            if (opponentPiece == myPiece) continue;
-            if (opponentPiece.isFinished()) continue;
-
-            boolean isSameTeam = opponentPiece.getOwnerId() == myPiece.getOwnerId();
-            boolean isSamePosition = opponentPiece.getPosition() == myPiece.getPosition();
-
-            if (!isSameTeam && isSamePosition) {
-                if(myPiece.getPosition()==0&&!opponentPiece.isJustArrived()){
-                    break;
-                }
-                targetNode.remove(opponentPiece);
-                opponentPiece.setPosition(0);
-                opponentPiece.clearPreviousPositions();
-                opponentPiece.clearGroup();
-                opponentPiece.setJustArrived(false); // ✅ 잡힌 말은 표시 안 되게
-                nodes.get(0).add(opponentPiece);
-                isCatched = true;
-                System.out.println("상대 팀 말 잡음!");
-            } else if (isSameTeam && isSamePosition) {
-                if (myPiece.getPosition() == 0) {
-                    if (myPiece.isJustArrived() && opponentPiece.isJustArrived()) {
-                        myPiece.grouping(opponentPiece);
-                        System.out.println("0번 노드 그룹핑 (둘 다 justArrived)");
-                    }
-                } else {
-                    myPiece.grouping(opponentPiece);
-                    System.out.println("그룹핑함");
-                }
-            }
-        }
-    }
-
     @Override
     public void movePosition(Piece myPiece, Integer yutValue) {
 
