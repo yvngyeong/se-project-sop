@@ -1,13 +1,13 @@
 package controllerTest;
 
 import com.example.demo.*;
-import controller.GameController;
+        import controller.GameControllerFX;
 import listener.PieceClickListener;
 import listener.SelectThrowListener;
 import listener.ThrowListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import view.GameView;
+import view.GameViewFX;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,19 +15,19 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * GameController가 GameView(클래스)에 올바르게 리스너를 등록하고,
+ * GameControllerFX가 GameViewFX(클래스)에 올바르게 리스너를 등록하고,
  * 그 리스너들이 호출될 때 컨트롤러가 적절히 반응하는지 검증하는 테스트 클래스
  */
-class GameControllerTest {
+public class gameControllerTestFX {
 
     // ─── 1. Stub 및 테스트 변수들 ──────────────────────────────────────────
 
     /**
-     * GameView 스텁: 리스너 등록 시 내부 필드에 저장하고,
+     * GameViewFX 스텁: 리스너 등록 시 내부 필드에 저장하고,
      * 컨트롤러가 호출해야 하는 메서드들을 카운트한다.
      * 테스트에서는 직접 리스너 onXxx()를 호출하여 컨트롤러 동작을 시뮬레이션한다.
      */
-    static class StubGameView extends GameView {
+    static class StubGameViewFX extends GameViewFX {
         // 리스너 저장용 필드
         PieceClickListener    storedPieceClickListener    = null;
         ThrowListener         storedThrowListener         = null;
@@ -41,14 +41,12 @@ class GameControllerTest {
         int setStatusCount              = 0;
         int showGameOverDialogCount     = 0;
         int showThrowButtonAgainCount   = 0;
+        int updateCurrentPlayerCount    = 0;
+        int updateUnusedPiecesCount     = 0;
 
-        StubGameView(Game game) {
-            super(game);
-        }
-
-        @Override
-        public void updateCurrentPlayer(int playerId) {
-            // 무시
+        // GameViewFX가 기본 생성자를 가진다고 가정
+        public StubGameViewFX() {
+            super(); // 실제 GameViewFX에 매개변수가 없는 기본 생성자가 있어야 합니다.
         }
 
         @Override
@@ -87,6 +85,16 @@ class GameControllerTest {
         }
 
         @Override
+        public void updateUnusedPieces(List<Player> players) {
+            updateUnusedPiecesCount++;
+        }
+
+        @Override
+        public void updateCurrentPlayer(int playerId) {
+            updateCurrentPlayerCount++;
+        }
+
+        @Override
         public void showYutResult(int result) {
             showYutResultCount++;
         }
@@ -117,11 +125,6 @@ class GameControllerTest {
         }
 
         @Override
-        public void updateUnusedPieces(List<Player> players) {
-            // 무시
-        }
-
-        @Override
         public void showGameOverDialog(int winnerId) {
             showGameOverDialogCount++;
         }
@@ -131,10 +134,6 @@ class GameControllerTest {
             showThrowButtonAgainCount++;
         }
 
-        @Override
-        public void dispose() {
-            // 무시
-        }
     }
 
     /**
@@ -230,7 +229,7 @@ class GameControllerTest {
     /**
      * Board 스텁: movePosition, isCatched만 최소 구현
      */
-    static class StubBoard extends HexagonalBoard {
+    static class StubBoard extends PentagonalBoard {
         @Override
         public void createNodes() { }
 
@@ -245,13 +244,13 @@ class GameControllerTest {
 
     // ─── 테스트에서 사용할 공통 변수들 ──────────────────────────────────────────────────────
 
-    private StubGameView view;
-    private StubPlayer  player1, player2;
-    private List<Player> players;
-    private StubTestYut testYut;
-    private StubBoard   board;
-    private StubGame    testGame;
-    private GameController controller;
+    private StubGameViewFX view;
+    private StubPlayer    player1, player2;
+    private List<Player>  players;
+    private StubTestYut   testYut;
+    private StubBoard     board;
+    private StubGame      testGame;
+    private GameControllerFX controller;
 
     // ─── 테스트 준비 ─────────────────────────────────────────────────────────
 
@@ -271,22 +270,22 @@ class GameControllerTest {
         // (3) Game 스텁 생성
         testGame = new StubGame(players, testYut, board);
 
-        // (4) GameView 스텁 생성 (Game 인스턴스 넘겨야 함)
-        view = new StubGameView(testGame);
+        // (4) GameViewFX 스텁 생성 (Stage는 실제 UI가 아니라 null을 넣어도 무방)
+        view = new StubGameViewFX();
 
-        // (5) 컨트롤러 생성 (생성자 내부에서 리스너 등록, createYutButtons(), initPieceComponents() 등 수행)
-        controller = new GameController(testGame, view);
+        // (5) 컨트롤러 생성 (생성자 내부에서 리스너 등록, 버튼 생성, init 등 수행)
+        controller = new GameControllerFX(/*stage*/ null, testGame, view);
     }
 
     // ─── 테스트 케이스 ──────────────────────────────────────────────────────────
 
     @Test
     void test_PieceClickListener() {
-        // 컨트롤러 생성 시 setPieceClickListener(...)가 호출되어 storedPieceClickListener가 null이 아니어야 한다.
+        // GameControllerFX 생성 시 setPieceClickListener(...)가 호출되어야 함
         assertNotNull(view.storedPieceClickListener,
-                "GameController 생성자에서 반드시 setPieceClickListener(...)를 호출해야 한다");
+                "GameControllerFX 생성자에서 반드시 setPieceClickListener(...)를 호출해야 한다");
 
-        // 호출된 리스너를 직접 호출해 보아도 예외가 발생하면 안 된다.
+        // 호출된 리스너를 직접 호출해 보아도 예외가 발생하지 않아야 함
         assertDoesNotThrow(
                 () -> view.storedPieceClickListener.onPieceClicked(new Piece(1)),
                 "PieceClickListener.onPieceClicked() 호출 시 예외가 발생하면 안 된다"
@@ -295,27 +294,26 @@ class GameControllerTest {
 
     @Test
     void test_TestYutMode_SelectThrowListener() {
-        // TestYut 모드이므로 컨트롤러 생성자에서 createYutButtons()와 setSelectThrowListener(...)이 호출됐어야 한다.
+        // TestYut 모드이므로 생성자에서 createYutButtons()와 setSelectThrowListener(...)가 호출됐어야 함
         assertEquals(1, view.createYutButtonsCount,
-                "TestYut 모드: GameController 생성자에서 createYutButtons()를 1회 호출해야 한다");
+                "TestYut 모드: GameControllerFX 생성자에서 createYutButtons()를 1회 호출해야 한다");
         assertNotNull(view.storedSelectThrowListener,
-                "TestYut 모드: GameController 생성자에서 setSelectThrowListener(...)를 호출해야 한다");
+                "TestYut 모드: GameControllerFX 생성자에서 setSelectThrowListener(...)를 호출해야 한다");
 
-        // 리스너 호출 전 상태 확인
+        // 리스너 호출 전 카운터 기록
         int beforeShow   = view.showYutResultCount;
         int beforeUpdate = view.updateYutQueueCount;
 
-        // SelectThrowListener를 직접 호출 (예: '4'를 선택했다고 가정)
+        // SelectThrowListener를 직접 호출 (예: '4' 결과를 선택했다고 가정)
         view.storedSelectThrowListener.onThrowSelected(4);
 
-        // 호출 직후, showYutResult()와 updateYutQueue()가 각각 1회씩 증가해야 한다.
+        // 호출 직후 showYutResult()와 updateYutQueue()가 각각 1회씩 실행되어야 함
         assertEquals(beforeShow + 1, view.showYutResultCount,
                 "SelectThrowListener.onThrowSelected() 호출 시 showYutResult(...)가 호출되어야 한다");
         assertEquals(beforeUpdate + 1, view.updateYutQueueCount,
                 "SelectThrowListener.onThrowSelected() 호출 시 updateYutQueue(...)가 호출되어야 한다");
 
-        // 이제 컨트롤러 내부에서 isThrowing이 false가 되었으므로, 다음 번에 PieceClickListener를 호출하면
-        // controller.selectPiece(...) 흐름으로 진입한다. (여기서는 단순히 setStatus 호출만 카운트)
+        // processYutResult가 실행된 뒤 isThrowing=false가 되므로, 이제 PieceClickListener를 호출하면 setStatus()가 카운트되어야 함
         int beforeStatus = view.setStatusCount;
         view.storedPieceClickListener.onPieceClicked(new Piece(1));
         assertTrue(view.setStatusCount > beforeStatus,
@@ -324,32 +322,32 @@ class GameControllerTest {
 
     @Test
     void test_RandomYutMode_ThrowListener() {
-        // RandomYut 모드로 전환하기 위해, Yut 타입만 일반 Yut(StubTestYut이 아닌)으로 바꿔 컨트롤러를 다시 생성.
+        // RandomYut 모드: TestYut이 아닌 일반 Yut 구현체를 사용
         Yut randomYut = new RandomYut() {
             @Override public Integer getResult() {
                 return 2;  // 예: 개(2)
             }
         };
 
-        // (1) RandomYut 모드용 Game/Controller 준비
+        // (1) RandomYut 모드용 Game/ControllerFX 준비
         Game randomGame         = new StubGame(players, randomYut, board);
-        StubGameView randomView = new StubGameView(randomGame);
-        GameController randomController = new GameController(randomGame, randomView);
+        StubGameViewFX randomView = new StubGameViewFX();
+        GameControllerFX randomController = new GameControllerFX(/*stage*/ null, randomGame, randomView);
 
-        // (2) 컨트롤러 생성 시 createRandomYutButtons()와 setThrowListener(...)이 호출되었는지 확인
+        // (2) 생성자에서 createRandomYutButtons()와 setThrowListener(...)이 호출되었는지 확인
         assertEquals(1, randomView.createRandomYutButtonsCount,
-                "RandomYut 모드: GameController 생성자에서 createRandomYutButtons()를 1회 호출해야 한다");
+                "RandomYut 모드: GameControllerFX 생성자에서 createRandomYutButtons()를 1회 호출해야 한다");
         assertNotNull(randomView.storedThrowListener,
-                "RandomYut 모드: GameController 생성자에서 setThrowListener(...)를 호출해야 한다");
+                "RandomYut 모드: GameControllerFX 생성자에서 setThrowListener(...)를 호출해야 한다");
 
-        // (3) 리스너 호출 전 상태 확인
+        // (3) 리스너 호출 전 카운터 기록
         int prevShow   = randomView.showYutResultCount;
         int prevUpdate = randomView.updateYutQueueCount;
 
-        // ThrowListener를 직접 호출 (예: 윷 던지기 버튼 클릭 시뮬레이션)
+        // ThrowListener를 직접 호출 (윷 던지기 버튼 클릭 시뮬레이션)
         randomView.storedThrowListener.onThrow();
 
-        // 호출 직후, showYutResult()와 updateYutQueue()가 각각 1회씩 증가해야 한다.
+        // 호출 직후 showYutResult()와 updateYutQueue()가 각각 1회씩 실행되어야 함
         assertEquals(prevShow + 1, randomView.showYutResultCount,
                 "ThrowListener.onThrow() 호출 시 showYutResult(...)가 호출되어야 한다");
         assertEquals(prevUpdate + 1, randomView.updateYutQueueCount,
