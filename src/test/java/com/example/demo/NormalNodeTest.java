@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 
 public class NormalNodeTest {
-    CornerNode node;
+    NormalNode node;
     Piece piece;
 
     @BeforeEach
     void setUp() {
-        node = new CornerNode(7); // ID 7 할당
+        node = new NormalNode(7); // ID 7 할당
         piece = new Piece(1);
     }
 
