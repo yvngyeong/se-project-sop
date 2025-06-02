@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'com.github.johnrengelman.shadow' version '8.1.1' // ✅ 추가
 }
 
 group = 'com.example'
@@ -17,7 +18,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'Main'  // 패키지 없을 때
+    mainClass = 'MainFX'  // 패키지 없을 때
     // 패키지 있으면 예: 'com.example.MainFX'
 }
 
@@ -49,5 +50,18 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+}
+
+tasks.named('shadowJar') {
+    archiveBaseName.set('se-project-sop')  // 생성될 JAR 이름 지정
+    archiveClassifier.set('')              // <- 'all' 같은 접미사 제거
+    archiveVersion.set('1.0-SNAPSHOT')
+
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass.get()
+        )
     }
 }

@@ -87,7 +87,13 @@ public class GameController {
             if (yutQueue.size() == 1) {
                 // 자동 선택
                 selectedYut = yutQueue.get(0);
-                gameView.setStatus(gameView.getYutName(selectedYut) + "이 나왔습니다. 말을 선택하세요.");
+                if(selectedYut==-1 && !getCurrentPlayer().hasPiecesOnBoard()){
+                    yutQueue.clear();
+                    gameView.updateYutQueue(yutQueue);
+                    nextTurn();
+                }else{
+                    gameView.setStatus(gameView.getYutName(selectedYut) + "이 나왔습니다. 말을 선택하세요.");
+                }
             } else {
                 // 두 개 이상일 때만 버튼 보여줌
                 selectedYut = null;

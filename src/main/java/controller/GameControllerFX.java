@@ -62,7 +62,13 @@ public class GameControllerFX {
 
         if (yutQueue.size() == 1) {
             selectedYut = yutQueue.get(0);
-            gameView.setStatus(gameView.getYutName(selectedYut) + " 나왔습니다. \n말을 선택하세요.");
+            if(selectedYut==-1 && !getCurrentPlayer().hasPiecesOnBoard()){
+                yutQueue.clear();
+                gameView.updateYutQueue(yutQueue);
+                nextTurn();
+            }else{
+                gameView.setStatus(gameView.getYutName(selectedYut) + " 나왔습니다. \n말을 선택하세요.");
+            }
         } else {
             selectedYut = null;
             gameView.setStatus("적용할 윷 결과를 선택해주세요.");
