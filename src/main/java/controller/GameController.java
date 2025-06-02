@@ -31,13 +31,7 @@ public class GameController {
         // ———— 리스타트 콜백 등록 ————
         gameView.setRestartCallback(this::restart);
 
-
-        gameView.setPieceClickListener(new PieceClickListener() {
-            @Override
-            public void onPieceClicked(Piece piece) {
-                selectPiece(piece);
-            }
-        });
+        gameView.setPieceClickListener(piece -> selectPiece(piece));
 
         // 윷 던지기 버튼 눌렸을 때
         if (game.getYut() instanceof TestYut) {
