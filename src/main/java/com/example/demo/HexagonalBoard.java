@@ -198,7 +198,7 @@ public class HexagonalBoard extends Board {
                 int prev1 = myPiece.popPreviousPosition();
                 int prev2 = myPiece.popPreviousPosition();
 
-                if (prev2 == 32 || prev2 == 42) {
+                if (prev2 == 32) {
                     position = 36;
                 } else {
                     position = nextPosition.get(0);  // 일반 30→34
